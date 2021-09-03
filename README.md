@@ -2,7 +2,7 @@
 
 Library for Pervasive Displays [EPD Extension Kit Gen 3 (EXT3)](https://www.pervasivedisplays.com/product/epd-extension-kit-gen-3-EXT3/) and monochrome 2.71" fast update screen with basic features
 
-<iframe src="https://player.vimeo.com/video/597192101" width="480" height="320" frameborder="0" allow="autoplay; fullscreen" allowfullscreen=""></iframe>
+https://user-images.githubusercontent.com/951776/132012290-8680632a-b45c-417e-a7fe-d625f7e8af26.mp4
 
 ## Features
 
