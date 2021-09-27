@@ -484,7 +484,7 @@ void Screen_EPD_EXT3_Fast::_sendCommand8(uint8_t command)
 
 void Screen_EPD_EXT3_Fast::_waitBusy()
 {
-    // HIGH = busy
+    // LOW = busy, HIGH = ready
     while (digitalRead(_pin.panelBusy) != HIGH)
     {
         delay(32); // non-blocking
