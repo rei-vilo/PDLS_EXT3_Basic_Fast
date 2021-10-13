@@ -7,7 +7,7 @@
 ///
 /// @n @b B-S-F
 /// * Edition: Basic
-/// * Family: Small 2.71
+/// * Family: Small 2.71-P
 /// * Update: Fast
 /// * Feature: none
 ///
@@ -60,7 +60,7 @@
 // Objects
 //
 ///
-/// @brief Class for Pervasive Displays iTC monochome screen 2.71
+/// @brief Class for Pervasive Displays iTC monochome screen 2.71-P
 /// @details Screen controllers
 /// * LCD: propietary, SPI
 /// * touch: no touch
