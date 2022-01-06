@@ -9,7 +9,7 @@
 /// @date 23 Aug 2021
 /// @version 509
 ///
-/// @copyright (c) Rei Vilo, 2010-2021
+/// @copyright (c) Rei Vilo, 2010-2022
 /// @copyright All rights reserved
 ///
 /// * Basic edition: for hobbyists and for personal usage
@@ -30,7 +30,7 @@
 #endif // end IDE
 
 #ifndef PDLS_EXT3_BASIC_FAST_RELEASE
-#define PDLS_EXT3_BASIC_FAST_RELEASE 507
+#define PDLS_EXT3_BASIC_FAST_RELEASE 509
 #include "Screen_EPD_EXT3.h"
 #endif // PDLS_EXT3_BASIC_FAST_RELEASE
 
