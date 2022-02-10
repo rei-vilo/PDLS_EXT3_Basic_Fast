@@ -12,6 +12,7 @@
 // Licence Creative Commons Attribution-NonCommercial-ShareAlike 4.0 Unported (CC BY-NC-SA 4.0)
 //
 // Release 509: Added eScreen_EPD_EXT3_271_Fast
+// Release 527: Added support for ESP32 PSRAM
 //
 
 // Library header
@@ -90,12 +91,25 @@ void Screen_EPD_EXT3_Fast::begin()
     _sizeFrame = _sizePageColour;
     // 9.69 and 11.98 combine two half-screens, hence two frames with adjusted size
 
+#if defined(BOARD_HAS_PSRAM) // ESP32 PSRAM specific case
+
+    if (_newImage == 0)
+    {
+        static uint8_t * _newFrameBuffer;
+        _newFrameBuffer = (uint8_t *) ps_malloc(_sizePageColour * _depthBuffer);
+        _newImage = (uint8_t *) _newFrameBuffer;
+    }
+
+#else // default case
+
     if (_newImage == 0)
     {
         static uint8_t * _newFrameBuffer;
         _newFrameBuffer = new uint8_t[_sizePageColour * _depthBuffer];
         _newImage = (uint8_t *) _newFrameBuffer;
     }
+
+#endif // ESP32 BOARD_HAS_PSRAM
 
     // Check FRAM
     bool flag = true;
