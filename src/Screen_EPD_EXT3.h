@@ -1,6 +1,6 @@
 ///
 /// @file Screen_EPD_EXT3.h
-/// @brief Driver for Pervasive Displays iTC monochrome screens with EXT3
+/// @brief Driver for Pervasive Displays iTC monochrome screens with embedded fast update and EXT3 board
 ///
 /// @details Project Pervasive Displays Library Suite
 /// @n Based on highView technology
@@ -33,7 +33,7 @@
 #include "Energia.h"
 #else // Arduino general
 #include "Arduino.h"
-#endif // IDE
+#endif // SDK
 
 // Configuration
 #include "hV_Configuration.h"
@@ -62,7 +62,7 @@
 ///
 /// @brief Class for Pervasive Displays iTC monochome screen 2.71-P
 /// @details Screen controllers
-/// * LCD: propietary, SPI
+/// * LCD: proprietary, SPI
 /// * touch: no touch
 /// * fonts: no fonts
 ///
@@ -111,6 +111,12 @@ class Screen_EPD_EXT3_Fast final : public hV_Screen_Buffer
     /// @note Send the frame-buffer to the screen and refresh the screen
     ///
     void flush();
+
+    ///
+    /// @brief Regenerate the panel
+    /// @details white-to-black-to-white cycle to reduce ghosting
+    ///
+    void regenerate();
 
     ///
     /// @brief Draw pixel
