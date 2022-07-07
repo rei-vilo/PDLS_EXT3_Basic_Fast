@@ -337,7 +337,7 @@ void Screen_EPD_EXT3_Fast::invert(bool flag)
 void Screen_EPD_EXT3_Fast::_setPoint(uint16_t x1, uint16_t y1, uint16_t colour)
 {
     // Orient and check coordinates are within screen
-    // _orientCoordinates() returns false=success, true=error
+    // _orientCoordinates() returns false = success, true = error
     if (_orientCoordinates(x1, y1))
     {
         return;
@@ -532,3 +532,16 @@ uint8_t Screen_EPD_EXT3_Fast::getRefreshTime()
 {
     return _refreshTime;
 }
+
+void Screen_EPD_EXT3_Fast::regenerate()
+{
+    clear(myColours.black);
+    flush();
+
+    delay(100);
+
+    clear(myColours.white);
+    flush();
+}
+
+
