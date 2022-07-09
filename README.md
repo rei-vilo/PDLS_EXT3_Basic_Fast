@@ -4,7 +4,7 @@
 
 Library for Pervasive Displays [EPD Extension Kit Gen 3 (EXT3)](https://www.pervasivedisplays.com/product/epd-extension-kit-gen-3-EXT3/) and iTC [monochrome 2.71-P](https://www.pervasivedisplays.com/product/2-71-e-ink-display-aurora-mb-v231/) screen with basic features
 
-Please refer to [PDLS_EXT3_Basic](https://github.com/rei-vilo/PDLS_EXT3_Basic/issues) for reporting issues.
+Please refer to [PDLS_EXT3_Basic](https://github.com/rei-vilo/PDLS_EXT3_Basic/issues) for reporting issues and contributing pull requests.
 
 https://user-images.githubusercontent.com/951776/132012290-8680632a-b45c-417e-a7fe-d625f7e8af26.mp4
 
