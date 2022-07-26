@@ -39,7 +39,7 @@ Software
 Hardware
 
 * Pervasive Displays [EPD Extension Kit Gen 3 (EXT3 or EXT3-1)](https://www.pervasivedisplays.com/product/epd-extension-kit-gen-3-EXT3/)
-* Pervasive Displays iTC [monochrome screens](https://www.pervasivedisplays.com/products/?_sft_etc_itc=itc&_sft_product_colour=black-white)
+* Pervasive Displays iTC [monochrome screens with partial update embedded](https://www.pervasivedisplays.com/products/?_sft_etc_itc=pu)
 
 ## Licence
 
