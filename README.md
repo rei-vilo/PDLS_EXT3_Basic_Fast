@@ -2,7 +2,10 @@
 
 ![Arduino lint](https://github.com/rei-vilo/PDLS_EXT3_Basic_Fast/actions/workflows/main.yml/badge.svg)
 
-Library for Pervasive Displays [EPD Extension Kit Gen 3 (EXT3 or EXT3-1)](https://www.pervasivedisplays.com/product/epd-extension-kit-gen-3-EXT3/) and iTC [monochrome 2.71-P](https://www.pervasivedisplays.com/product/2-71-e-ink-display-aurora-mb-v231/) screen with basic features
+Library for [Pervasive Displays](https://www.pervasivedisplays.com) 
+
++ [EPD Extension Kit Gen 3 (EXT3 or EXT3-1)](https://www.pervasivedisplays.com/product/epd-extension-kit-gen-3-EXT3/) and 
++ iTC [monochrome 2.71-P](https://www.pervasivedisplays.com/product/2-71-e-ink-display-aurora-mb-v231/) screen 
 
 Please refer to [PDLS_EXT3_Basic](https://github.com/rei-vilo/PDLS_EXT3_Basic/issues) for reporting issues and contributing pull requests.
 
