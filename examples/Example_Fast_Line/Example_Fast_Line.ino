@@ -62,7 +62,6 @@ void flush_ms()
     Serial.println(" ms");
 }
 
-
 #if (DISPLAY_FAST_LINE == 1)
 void displayFastLine()
 {
