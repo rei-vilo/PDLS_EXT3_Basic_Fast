@@ -14,6 +14,7 @@
 // Release 509: Added eScreen_EPD_EXT3_271_Fast
 // Release 527: Added support for ESP32 PSRAM
 // Release 541: Improved support for ESP32
+// Release 550: Tested Xiao ESP32-C3 with SPI exception
 //
 
 // Library header
@@ -179,7 +180,12 @@ void Screen_EPD_EXT3_Fast::begin()
 
 #else
 
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_XIAO_ESP32C3)
+
+    // Board Xiao ESP32-C3 crashes if pins are specified.
+    SPI.begin(8, 9, 10); // SCK MISO MOSI
+
+#elif defined(ARDUINO_ARCH_ESP32)
 
     // Board ESP32-Pico-DevKitM-2 crashes if pins are not specified.
     SPI.begin(14, 12, 13); // SCK MISO MOSI
@@ -461,8 +467,6 @@ uint16_t Screen_EPD_EXT3_Fast::_getPoint(uint16_t x1, uint16_t y1)
     uint32_t z1 = _getZ(x1, y1);
 
     value = bitRead(_newImage[z1], 7 - (y1 % 8));
-    // value |= bitRead(_newImage[_sizePageColour + z1], 7 - (y1 % 8));
-
     value <<= 4;
     value &= 0b11110000;
 
