@@ -32,7 +32,7 @@
 // Define structures and classes
 
 // Define variables and constants
-Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_EXT3_271_Fast, boardLaunchPad);
+Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_EXT3_271_09_Fast, boardLaunchPad);
 
 // Prototypes
 
