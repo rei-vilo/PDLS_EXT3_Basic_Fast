@@ -69,9 +69,10 @@
 #define FSM_POWER_SLEEP 0x02 ///< Off or sleep
 /// @}
 
-/// @brief Partial update sate
+/// @brief Partial update state
 /// @{
 #define PARTIAL_OFF 0x00 ///< non-activated
 #define PARTIAL_ON 0x01 ///< activated but not populated
 #define PARTIAL_VALUES 0x02 ///< activated and populated
 /// @}
+
