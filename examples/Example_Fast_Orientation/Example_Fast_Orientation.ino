@@ -5,8 +5,8 @@
 /// @details Library for Pervasive Displays EXT3 - Basic level
 ///
 /// @author Rei Vilo
-/// @date 23 Aug 2021
-/// @version 509
+/// @date 12 Nov 2022
+/// @version 601
 ///
 /// @copyright (c) Rei Vilo, 2010-2022
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
@@ -20,7 +20,7 @@
 #include "Energia.h"
 #else // Arduino general
 #include "Arduino.h"
-#endif // SDK
+#endif // end IDE
 
 // Set parameters
 #define DISPLAY_FAST_ORIENTATION 1
@@ -32,7 +32,7 @@
 // Define structures and classes
 
 // Define variables and constants
-Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_EXT3_271_09_Fast, boardLaunchPad);
+Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_EXT3_271_09_Fast, boardRaspberryPiPico_RP2040);
 
 // Prototypes
 
