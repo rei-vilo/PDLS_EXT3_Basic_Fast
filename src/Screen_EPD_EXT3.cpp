@@ -16,6 +16,7 @@
 // Release 541: Improved support for ESP32
 // Release 550: Tested Xiao ESP32-C3 with SPI exception
 // Release 601: Added support for screens with embedded fast update
+// Release 602: Improve functions structure
 //
 
 // Library header
@@ -102,49 +103,44 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
 
 void Screen_EPD_EXT3_Fast::COG_getUserData()
 {
-    // 1.54” = 0xcf, 0x02
-    // 2.13” = 0xcf, 0x02
-    // 2.66” = 0xcf, 0x02
-    // 2.7” = 0xcf, 0x8d
-    // 3.7” = 0xcf, 0x0f
-    // 4.2” = 0x0f, 0x0e
-
     uint16_t _codeSizeType = _eScreen_EPD_EXT3 & 0xffff;
 
     // Size	cSize	cType	Driver
     switch (_codeSizeType)
     {
-        case 0x150C:
-        case 0x210E:
-        case 0x260C:
+        case 0x150C: // 1.54” = 0xcf, 0x02
+        case 0x210E: // 2.13” = 0xcf, 0x02
+        case 0x260C: // 2.66” = 0xcf, 0x02
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x02;
             break;
 
-        case 0x2709:
+        case 0x2709: // 2.70” = 2.71” = 0xcf, 0x8d
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x8d;
             break;
 
-        case 0x2809:
+        case 0x2809: // 2.87” = 0xcf, 0x8d
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x8d;
             break;
 
-        case 0x370C:
+        case 0x370C: // 3.70” = 0xcf, 0x0f
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x8f;
             break;
 
-        case 0x410D:
+        case 0x410D:// 4.17” = 0x0f, 0x0e
 
+            index00_data[0] = 0x0f;
+            index00_data[1] = 0x0e;
             break;
 
-        case 0x430C:
+        case 0x430C: // 4.37” = 0x0f, 0x0e
 
             index00_data[0] = 0x0f;
             index00_data[1] = 0x0e;
@@ -158,6 +154,16 @@ void Screen_EPD_EXT3_Fast::COG_getUserData()
 
             break;
     }
+}
+
+void Screen_EPD_EXT3_Fast::COG_sendImageDataFast()
+{
+    uint8_t * nextBuffer = _newImage;
+    uint8_t * previousBuffer = _newImage + _pageColourSize;
+
+    _sendIndexData(0x10, previousBuffer, _frameSize); // Previous frame
+    _sendIndexData(0x13, nextBuffer, _frameSize); // Next frame
+    memcpy(previousBuffer, nextBuffer, _frameSize); // Copy displayed next to previous
 }
 
 void Screen_EPD_EXT3_Fast::COG_update()
@@ -490,12 +496,7 @@ void Screen_EPD_EXT3_Fast::flush()
     COG_initial(UPDATE_FAST);
 
     // Send image data
-    uint8_t * nextBuffer = _newImage;
-    uint8_t * previousBuffer = _newImage + _pageColourSize;
-
-    _sendIndexData(0x10, previousBuffer, _frameSize); // Previous frame
-    _sendIndexData(0x13, nextBuffer, _frameSize); // Next frame
-    memcpy(previousBuffer, nextBuffer, _frameSize); // Copy displayed next to previous
+    COG_sendImageDataFast();
 
     // Update
     COG_update();
@@ -525,6 +526,17 @@ void Screen_EPD_EXT3_Fast::clear(uint16_t colour)
         // physical white 10
         memset(_newImage, 0xff, _pageColourSize);
     }
+}
+
+void Screen_EPD_EXT3_Fast::regenerate()
+{
+    clear(myColours.black);
+    flush();
+    delay(100);
+
+    clear(myColours.white);
+    flush();
+    delay(100);
 }
 
 void Screen_EPD_EXT3_Fast::invert(bool flag)
@@ -720,16 +732,5 @@ void Screen_EPD_EXT3_Fast::_sendIndexData(uint8_t index, const uint8_t * data, u
     delayMicroseconds(50);
 
     digitalWrite(_pin.panelCS, HIGH); // CS High = Unselect
-}
-
-void Screen_EPD_EXT3_Fast::regenerate()
-{
-    clear(myColours.black);
-    flush();
-
-    delay(100);
-
-    clear(myColours.white);
-    flush();
 }
 
