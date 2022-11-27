@@ -425,7 +425,6 @@ void Screen_EPD_EXT3_Fast::begin()
             break;
     } // _codeSize
 
-
     // Check screen and get tables
     COG_getUserData(); // nothing sent to panel
 
