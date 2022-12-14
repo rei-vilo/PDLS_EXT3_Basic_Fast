@@ -230,6 +230,7 @@ class Screen_EPD_EXT3_Fast final : public hV_Screen_Buffer
     void COG_getUserData();
     void COG_update(void);
     void COG_powerOff(void);
+    void COG_sendImageDataFast();
 
     // Screen independent variables
     uint8_t * _newImage;
