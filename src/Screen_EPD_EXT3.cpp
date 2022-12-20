@@ -8,7 +8,7 @@
 //
 // Created by Rei Vilo, 28 Jun 2016
 //
-// Copyright © Rei Vilo, 2010-2022
+// Copyright (c) Rei Vilo, 2010-2023
 // Licence Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 //
 // Release 509: Added eScreen_EPD_EXT3_271_Fast
@@ -16,7 +16,8 @@
 // Release 541: Improved support for ESP32
 // Release 550: Tested Xiao ESP32-C3 with SPI exception
 // Release 601: Added support for screens with embedded fast update
-// Release 602: Improve functions structure
+// Release 602: Improved functions structure
+// Release 604: Improved stability
 //
 
 // Library header
@@ -51,7 +52,7 @@ SPISettings _settingScreen;
 #endif
 
 //
-// === COG settings
+// === COG section
 //
 /// @cond
 
@@ -65,7 +66,8 @@ SPISettings _settingScreen;
 uint8_t indexE5_data[] = {0x19}; // temperature
 uint8_t indexE0_data[] = {0x02}; // activate temperature
 uint8_t index00_data[] = {0xff, 0x8f}; // PSR, constant
-uint8_t index50_data[] = {0x07}; // All, constant
+uint8_t index50a_data[] = {0x27}; // All, constant
+uint8_t index50b_data[] = {0x07}; // All, constant
 
 void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
 {
@@ -95,9 +97,9 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
     _sendIndexData(0xe0, indexE0_data, 1); // Activate Temperature
     _sendIndexData(0x00, index00_work, 2); // PSR
 
-    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL)) // Specific settings for fast update
+    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50) // Specific settings for fast update
     {
-        _sendIndexData(0x50, index50_data, 1); // Vcom and data interval setting
+        _sendIndexData(0x50, index50a_data, 1); // Vcom and data interval setting
     }
 }
 
@@ -105,7 +107,7 @@ void Screen_EPD_EXT3_Fast::COG_getUserData()
 {
     uint16_t _codeSizeType = _eScreen_EPD_EXT3 & 0xffff;
 
-    // Size	cSize	cType	Driver
+    // Size cSize cType Driver
     switch (_codeSizeType)
     {
         case 0x150C: // 1.54” = 0xcf, 0x02
@@ -114,36 +116,42 @@ void Screen_EPD_EXT3_Fast::COG_getUserData()
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x02;
+            _flag50 = true;
             break;
 
         case 0x2709: // 2.70” = 2.71” = 0xcf, 0x8d
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x8d;
+            _flag50 = false;
             break;
 
         case 0x2809: // 2.87” = 0xcf, 0x8d
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x8d;
+            _flag50 = false;
             break;
 
         case 0x370C: // 3.70” = 0xcf, 0x0f
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x8f;
+            _flag50 = true;
             break;
 
         case 0x410D:// 4.17” = 0x0f, 0x0e
 
             index00_data[0] = 0x0f;
             index00_data[1] = 0x0e;
+            _flag50 = false;
             break;
 
         case 0x430C: // 4.37” = 0x0f, 0x0e
 
             index00_data[0] = 0x0f;
             index00_data[1] = 0x0e;
+            _flag50 = true;
             break;
 
         case 0x580B:
@@ -166,8 +174,13 @@ void Screen_EPD_EXT3_Fast::COG_sendImageDataFast()
     memcpy(previousBuffer, nextBuffer, _frameSize); // Copy displayed next to previous
 }
 
-void Screen_EPD_EXT3_Fast::COG_update()
+void Screen_EPD_EXT3_Fast::COG_update(uint8_t updateMode)
 {
+    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50) // Specific settings for fast update
+    {
+        _sendIndexData(0x50, index50b_data, 1); // Vcom and data interval setting
+    }
+
     _sendCommand8(0x04); // Power on
     _waitBusy();
 
@@ -184,7 +197,7 @@ void Screen_EPD_EXT3_Fast::COG_powerOff()
 }
 /// @endcond
 //
-// === End of COG
+// === End of COG section
 //
 
 // Utilities
@@ -425,7 +438,6 @@ void Screen_EPD_EXT3_Fast::begin()
             break;
     } // _codeSize
 
-
     // Check screen and get tables
     COG_getUserData(); // nothing sent to panel
 
@@ -499,7 +511,7 @@ void Screen_EPD_EXT3_Fast::flush()
     COG_sendImageDataFast();
 
     // Update
-    COG_update();
+    COG_update(UPDATE_FAST);
     COG_powerOff();
 }
 
