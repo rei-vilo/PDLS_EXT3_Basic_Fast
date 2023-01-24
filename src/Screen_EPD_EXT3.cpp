@@ -182,17 +182,18 @@ void Screen_EPD_EXT3_Fast::COG_update(uint8_t updateMode)
     }
 
     _sendCommand8(0x04); // Power on
+    digitalWrite(_pin.panelCS, HIGH); // CS# = 1
     _waitBusy();
 
     _sendCommand8(0x12); // Display Refresh
-    _waitBusy();
-
     digitalWrite(_pin.panelCS, HIGH); // CS# = 1
+    _waitBusy();
 }
 
 void Screen_EPD_EXT3_Fast::COG_powerOff()
 {
     _sendCommand8(0x02); // Turn off DC/DC
+    digitalWrite(_pin.panelCS, HIGH); // CS# = 1
     _waitBusy();
 }
 /// @endcond

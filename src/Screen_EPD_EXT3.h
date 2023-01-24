@@ -118,8 +118,7 @@ class Screen_EPD_EXT3_Fast final : public hV_Screen_Buffer
 
     ///
     /// @brief Update the display, fast update
-    /// @note Display next frame-buffer on screen,
-    /// and copy next frame-buffer into old frame-buffer
+    /// @note Display next frame-buffer on screen and copy next frame-buffer into old frame-buffer
     ///
     void flush();
 
