@@ -18,7 +18,8 @@
 // Release 601: Added support for screens with embedded fast update
 // Release 602: Improved functions structure
 // Release 604: Improved stability
-// Release 607: Improved screens names consistency 
+// Release 607: Improved screens names consistency
+// Release 608: Added screen report
 //
 
 // Library header
@@ -57,25 +58,23 @@ SPISettings _settingScreen;
 //
 /// @cond
 
-//
-// Use of delay in µs before and after SPI
-// 0 = no, 1..500 = yes; recommended = 1
-#define USE_DELAY_US 1
-
 // Common settings
 // 0x00, soft-reset, temperature, active temperature, PSR0, PSR1
-uint8_t indexE5_data[] = {0x19}; // temperature
-uint8_t indexE0_data[] = {0x02}; // activate temperature
+uint8_t indexE5_data[] = {0x19}; // Temperature
+uint8_t indexE0_data[] = {0x02}; // Activate temperature
 uint8_t index00_data[] = {0xff, 0x8f}; // PSR, constant
-uint8_t index50a_data[] = {0x27}; // All, constant
-uint8_t index50b_data[] = {0x07}; // All, constant
+uint8_t index50a_data[] = {0x27}; // 154 213 266 and 370 screens, constant
+uint8_t index50b_data[] = {0x07}; // 154 213 266 and 370 screens, constant
+uint8_t index50c_work[] = {0x07}; // All screens, constant
 
 void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
 {
     // Work settings
-    uint8_t indexE5_work[1]; // temperature
+    uint8_t indexE0_work[1]; // Activate temperature
+    uint8_t indexE5_work[1]; // Temperature
     uint8_t index00_work[2]; // PSR
 
+    indexE0_work[0] = indexE0_data[0];
     if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL)) // Specific settings for fast update
     {
         indexE5_work[0] = indexE5_data[0] | 0x40; // temperature | 0x40
@@ -84,7 +83,7 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
     }
     else // Common settings
     {
-        indexE5_work[0] = indexE5_data[0]; // temperature
+        indexE5_work[0] = indexE5_data[0]; // Temperature
         index00_work[0] = index00_data[0]; // PSR0
         index00_work[1] = index00_data[1]; // PSR1
     } // _codeExtra updateMode
@@ -95,12 +94,23 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
     _waitBusy();
 
     _sendIndexData(0xe5, indexE5_work, 1); // Input Temperature: 25C
-    _sendIndexData(0xe0, indexE0_data, 1); // Activate Temperature
+    _sendIndexData(0xe0, indexE0_work, 1); // Activate Temperature
     _sendIndexData(0x00, index00_work, 2); // PSR
 
-    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50) // Specific settings for fast update
+    // Specific settings for fast update, all screens
+    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL))
     {
-        _sendIndexData(0x50, index50a_data, 1); // Vcom and data interval setting
+        uint8_t index50c_work[1]; // Vcom
+        index50c_work[0] = index50c_data[0]; // 0x07
+        _sendIndexData(0x50, index50c_work, 1); // Vcom and data interval setting
+    }
+
+    // Additional settings for fast update, 154 213 266 and 370 screens (_flag50)
+    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
+    {
+        uint8_t index50a_work[1]; // Vcom
+        index50a_work[0] = index50a_data[0]; // 0x27
+        _sendIndexData(0x50, index50a_work, 1); // Vcom and data interval setting
     }
 }
 
@@ -177,9 +187,12 @@ void Screen_EPD_EXT3_Fast::COG_sendImageDataFast()
 
 void Screen_EPD_EXT3_Fast::COG_update(uint8_t updateMode)
 {
-    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50) // Specific settings for fast update
+    // Specific settings for fast update, 154 213 266 and 370 screens (_flag50)
+    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
     {
-        _sendIndexData(0x50, index50b_data, 1); // Vcom and data interval setting
+        uint8_t index50b_work[1]; // Vcom
+        index50b_work[0] = index50b_data[0]; // 0x07
+        _sendIndexData(0x50, index50b_work, 1); // Vcom and data interval setting
     }
 
     _sendCommand8(0x04); // Power on
@@ -242,7 +255,7 @@ void Screen_EPD_EXT3_Fast::begin()
             _screenDiagonal = 266;
             break;
 
-        case 0x27: // 2.71" and 2.70"-Touch
+        case 0x27: // 2.71" and 2.71"-Touch
 
             _screenSizeV = 264; // vertical = wide size
             _screenSizeH = 176; // horizontal = small size
@@ -459,6 +472,10 @@ void Screen_EPD_EXT3_Fast::begin()
     _penSolid = false;
     _invert = false;
 
+    // Report
+    Serial.println("= Screen %s %ix%i", WhoAmI(), screenSizeX(), screenSizeY());
+    Serial.println("= PDLS v%i", SCREEN_EPD_EXT3_RELEASE);
+
     clear();
 }
 
@@ -604,7 +621,7 @@ void Screen_EPD_EXT3_Fast::_setOrientation(uint8_t orientation)
 
 bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
 {
-    bool flag = true; // false = success, true = error
+    bool flagError = true; // false = success, true = error
     switch (_orientation)
     {
         case 3: // checked, previously 1
@@ -612,7 +629,7 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
             if ((x < _screenSizeV) and (y < _screenSizeH))
             {
                 x = _screenSizeV - 1 - x;
-                flag = false;
+                flagError = false;
             }
             break;
 
@@ -623,7 +640,7 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
                 x = _screenSizeH - 1 - x;
                 y = _screenSizeV - 1 - y;
                 swap(x, y);
-                flag = false;
+                flagError = false;
             }
             break;
 
@@ -632,7 +649,7 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
             if ((x < _screenSizeV) and (y < _screenSizeH))
             {
                 y = _screenSizeH - 1 - y;
-                flag = false;
+                flagError = false;
             }
             break;
 
@@ -641,12 +658,12 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
             if ((x < _screenSizeH) and (y < _screenSizeV))
             {
                 swap(x, y);
-                flag = false;
+                flagError = false;
             }
             break;
     }
 
-    return flag;
+    return flagError;
 }
 
 uint32_t Screen_EPD_EXT3_Fast::_getZ(uint16_t x1, uint16_t y1)
