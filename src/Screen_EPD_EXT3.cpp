@@ -20,6 +20,7 @@
 // Release 604: Improved stability
 // Release 607: Improved screens names consistency
 // Release 608: Added screen report
+// Release 609: Added temperature management
 //
 
 // Library header
@@ -60,12 +61,12 @@ SPISettings _settingScreen;
 
 // Common settings
 // 0x00, soft-reset, temperature, active temperature, PSR0, PSR1
-uint8_t indexE5_data[] = {0x19}; // Temperature
+uint8_t indexE5_data[] = {0x19}; // Temperature 0x19 = 25 °C
 uint8_t indexE0_data[] = {0x02}; // Activate temperature
 uint8_t index00_data[] = {0xff, 0x8f}; // PSR, constant
-uint8_t index50a_data[] = {0x27}; // 154 213 266 and 370 screens, constant
-uint8_t index50b_data[] = {0x07}; // 154 213 266 and 370 screens, constant
-uint8_t index50c_work[] = {0x07}; // All screens, constant
+uint8_t index50a_data[] = {0x27}; // Only 154 213 266 and 370 screens, constant
+uint8_t index50b_data[] = {0x07}; // Only 154 213 266 and 370 screens, constant
+uint8_t index50c_data[] = {0x07}; // All screens, constant
 
 void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
 {
@@ -130,7 +131,7 @@ void Screen_EPD_EXT3_Fast::COG_getUserData()
             _flag50 = true;
             break;
 
-        case 0x2709: // 2.70” = 2.71” = 0xcf, 0x8d
+        case 0x2709: // 2.71” = 0xcf, 0x8d
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x8d;
@@ -269,7 +270,7 @@ void Screen_EPD_EXT3_Fast::begin()
             _screenDiagonal = 287;
             break;
 
-        case 0x37: // 3.70"
+        case 0x37: // 3.70" and 3.70"-Touch
 
             _screenSizeV = 416; // vertical = wide size
             _screenSizeH = 240; // horizontal = small size
@@ -518,10 +519,39 @@ String Screen_EPD_EXT3_Fast::WhoAmI()
 
 #endif // FONT_MODE
 
+    if (_codeExtra > 0)
+    {
+        if (_codeExtra & FEATURE_FAST)
+        {
+            text +=  "F";
+        }
+        if (_codeExtra & FEATURE_TOUCH)
+        {
+            text +=  "T";
+        }
+        if (_codeExtra & FEATURE_OTHER)
+        {
+            text +=  "A";
+        }
+        if (_codeExtra & FEATURE_WIDE_TEMPERATURE)
+        {
+            text +=  "W";
+        }
+        if (_codeExtra & FEATURE_RED)
+        {
+            text +=  "R";
+        }
+    }
+
     return text;
 }
 
 void Screen_EPD_EXT3_Fast::flush()
+{
+    flushMode(UPDATE_FAST);
+}
+
+void Screen_EPD_EXT3_Fast::_flushFast()
 {
     // Configure
     COG_initial(UPDATE_FAST);
@@ -764,4 +794,94 @@ void Screen_EPD_EXT3_Fast::_sendIndexData(uint8_t index, const uint8_t * data, u
 
     digitalWrite(_pin.panelCS, HIGH); // CS High = Unselect
 }
+
+//
+// === Temperature section
+//
+void Screen_EPD_EXT3_Fast::setTemperatureC(int8_t temperatureC)
+{
+    _temperature = temperatureC;
+
+    uint8_t _temperature2;
+    if (_temperature < 0)
+    {
+        _temperature2 = -_temperature;
+        _temperature2 = (uint8_t)(~_temperature2) + 1; // 2's complement
+    }
+    else
+    {
+        _temperature2 = _temperature;
+    }
+    indexE5_data[0] = _temperature2;
+}
+
+void Screen_EPD_EXT3_Fast::setTemperatureF(int16_t temperatureF)
+{
+    int8_t temperatureC = ((temperatureF - 32) * 5) / 9; // C = (F - 32) * 5 / 9
+    setTemperatureC(temperatureC);
+}
+
+uint8_t Screen_EPD_EXT3_Fast::checkTemperatureMode(uint8_t updateMode)
+{
+    // #define FEATURE_FAST 0x01 ///< With embedded fast update
+    // #define FEATURE_TOUCH 0x02 ///< With capacitive touch panel
+    // #define FEATURE_OTHER 0x04 ///< With other feature
+    // #define FEATURE_WIDE_TEMPERATURE 0x08 ///< With wide operating temperature
+    // #define FEATURE_RED 0x10 ///< With red colour
+    updateMode = UPDATE_FAST;
+
+    switch (_codeExtra & 0x19)
+    {
+        case FEATURE_FAST: // PS series
+
+            // Fast 	PS 	Embedded fast update 	FU: +15 to +30 °C 	GU: 0 to +50 °C
+            if ((_temperature < 15) or (_temperature > 30))
+            {
+                updateMode = UPDATE_NONE;
+            }
+            break;
+
+        case (FEATURE_FAST | FEATURE_WIDE_TEMPERATURE): // KS series
+
+            // Wide 	KS 	Wide temperature and embedded fast update 	FU: 0 to +50 °C 	GU: -15 to +60 °C
+            if ((_temperature < -15) or (_temperature > 60))
+            {
+                updateMode = UPDATE_NONE;
+            }
+            break;
+
+        default: // CS series
+        
+            // Normal 	CS 	Global update above 0 °C 	FU: - 	GU: 0 to +50 °C
+            updateMode = UPDATE_NONE;
+            break;
+    }
+
+    return updateMode;
+}
+
+uint8_t Screen_EPD_EXT3_Fast::flushMode(uint8_t updateMode)
+{
+    updateMode = checkTemperatureMode(updateMode);
+
+    switch (updateMode)
+    {
+        // case UPDATE_GLOBAL:
+        case UPDATE_FAST:
+
+            _flushFast();
+            break;
+
+        default:
+
+            Serial.println(LEVEL_ERROR, "UPDATE_NONE invoked");
+            break;
+    }
+
+    return updateMode;
+}
+//
+// === End of Temperature section
+//
+
 
