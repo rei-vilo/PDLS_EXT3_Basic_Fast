@@ -24,7 +24,7 @@
 /// * 5.80 reference xE2581PS0Bx (not tested)
 ///
 /// @author Rei Vilo
-/// @date 02 May 2023
+/// @date 20 Apr 2023
 /// @version 609
 ///
 /// @copyright (c) Rei Vilo, 2010-2023
