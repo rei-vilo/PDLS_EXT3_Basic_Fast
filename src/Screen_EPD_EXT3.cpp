@@ -828,6 +828,7 @@ uint8_t Screen_EPD_EXT3_Fast::checkTemperatureMode(uint8_t updateMode)
     // #define FEATURE_OTHER 0x04 ///< With other feature
     // #define FEATURE_WIDE_TEMPERATURE 0x08 ///< With wide operating temperature
     // #define FEATURE_RED 0x10 ///< With red colour
+    // #define FEATURE_RED_YELLOW 0x20 ///< With red and yellow colours
 
     updateMode = UPDATE_FAST;
 
@@ -885,5 +886,4 @@ uint8_t Screen_EPD_EXT3_Fast::flushMode(uint8_t updateMode)
 //
 // === End of Temperature section
 //
-
 

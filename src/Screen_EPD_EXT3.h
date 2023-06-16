@@ -24,8 +24,8 @@
 /// * 5.80 reference xE2581PS0Bx (not tested)
 ///
 /// @author Rei Vilo
-/// @date 20 Apr 2023
-/// @version 609
+/// @date 21 Jun 2023
+/// @version 611
 ///
 /// @copyright (c) Rei Vilo, 2010-2023
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
@@ -50,15 +50,15 @@
 // Configuration
 #include "hV_Configuration.h"
 
-#if (hV_CONFIGURATION_RELEASE < 600)
-#error Required hV_CONFIGURATION_RELEASE 600
+#if (hV_CONFIGURATION_RELEASE < 611)
+#error Required hV_CONFIGURATION_RELEASE 611
 #endif // hV_CONFIGURATION_RELEASE
 
 #ifndef SCREEN_EPD_EXT3_RELEASE
 ///
 /// @brief Library release number
 ///
-#define SCREEN_EPD_EXT3_RELEASE 609
+#define SCREEN_EPD_EXT3_RELEASE 611
 
 // Other libraries
 #include "SPI.h"
@@ -252,7 +252,7 @@ class Screen_EPD_EXT3_Fast final : public hV_Screen_Buffer
 
     ///
     /// @brief Wait for ready
-    /// @details Wait for _pin.panelBusy low
+    /// @details Wait for panelBusy low
     ///
     void _waitBusy();
     void _sendCommand8(uint8_t command);
