@@ -24,8 +24,8 @@
 /// * 5.80 reference xE2581PS0Bx (not tested)
 ///
 /// @author Rei Vilo
-/// @date 21 Jun 2023
-/// @version 611
+/// @date 21 Jul 2023
+/// @version 612
 ///
 /// @copyright (c) Rei Vilo, 2010-2023
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
@@ -58,14 +58,14 @@
 ///
 /// @brief Library release number
 ///
-#define SCREEN_EPD_EXT3_RELEASE 611
+#define SCREEN_EPD_EXT3_RELEASE 612
 
 // Other libraries
 #include "SPI.h"
 #include "hV_Screen_Buffer.h"
 
-#if (hV_SCREEN_BUFFER_RELEASE < 523)
-#error Required hV_SCREEN_BUFFER_RELEASE 523
+#if (hV_SCREEN_BUFFER_RELEASE < 612)
+#error Required hV_SCREEN_BUFFER_RELEASE 612
 #endif // hV_SCREEN_BUFFER_RELEASE
 
 // Objects

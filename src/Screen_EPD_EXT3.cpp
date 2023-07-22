@@ -21,6 +21,7 @@
 // Release 607: Improved screens names consistency
 // Release 608: Added screen report
 // Release 609: Added temperature management
+// Release 610: Removed partial update
 //
 
 // Library header
