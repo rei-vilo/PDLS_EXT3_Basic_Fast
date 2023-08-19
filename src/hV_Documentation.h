@@ -42,7 +42,7 @@
 ///
 /// @author Rei Vilo
 /// @date 21 Aug 2023
-/// @version 6.1.3
+/// @version 613
 ///
 /// @copyright &copy; Rei Vilo, 2010-2023
 /// @copyright All rights reserved
@@ -98,11 +98,11 @@
 ///
 /// + Black-White-Red-Yellow
 ///     * BWRY_Colours.ino
-/// @image html BWRY_Colours.png
-/// @image latex BWRY_Colours.png width=10cm
+/// @image html BWRY_Colours.jpg
+/// @image latex BWRY_Colours.jpg width=10cm
 ///     * BWRY_Palette.ino
-/// @image html BWRY_Palette.png
-/// @image latex BWRY_Palette.png width=10cm
+/// @image html BWRY_Palette.jpg
+/// @image latex BWRY_Palette.jpg width=10cm
 ///     * BWRY_Contrasts.ino
 /// @image html BWRY_Contrasts.jpg
 /// @image latex BWRY_Contrasts.jpg width=8cm
