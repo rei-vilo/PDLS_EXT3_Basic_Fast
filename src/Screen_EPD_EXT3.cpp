@@ -22,11 +22,10 @@
 // Release 608: Added screen report
 // Release 609: Added temperature management
 // Release 610: Removed partial update
-// Release 614: Added support for Arduino Nano ESP32 board 
+// Release 700: Refactored screen and board functions
 //
 
 // Library header
-#include "SPI.h"
 #include "Screen_EPD_EXT3.h"
 
 #if defined(ENERGIA)
@@ -93,19 +92,19 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
 
     // New algorithm
     uint8_t index00_reset[] = {0x0e};
-    _sendIndexData(0x00, index00_reset, 1); // Soft-reset
-    _waitBusy();
+    b_sendIndexData(0x00, index00_reset, 1); // Soft-reset
+    b_waitBusy();
 
-    _sendIndexData(0xe5, indexE5_work, 1); // Input Temperature: 25C
-    _sendIndexData(0xe0, indexE0_work, 1); // Activate Temperature
-    _sendIndexData(0x00, index00_work, 2); // PSR
+    b_sendIndexData(0xe5, indexE5_work, 1); // Input Temperature: 25C
+    b_sendIndexData(0xe0, indexE0_work, 1); // Activate Temperature
+    b_sendIndexData(0x00, index00_work, 2); // PSR
 
     // Specific settings for fast update, all screens
     if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL))
     {
         uint8_t index50c_work[1]; // Vcom
         index50c_work[0] = index50c_data[0]; // 0x07
-        _sendIndexData(0x50, index50c_work, 1); // Vcom and data interval setting
+        b_sendIndexData(0x50, index50c_work, 1); // Vcom and data interval setting
     }
 
     // Additional settings for fast update, 154 213 266 and 370 screens (_flag50)
@@ -113,7 +112,7 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
     {
         uint8_t index50a_work[1]; // Vcom
         index50a_work[0] = index50a_data[0]; // 0x27
-        _sendIndexData(0x50, index50a_work, 1); // Vcom and data interval setting
+        b_sendIndexData(0x50, index50a_work, 1); // Vcom and data interval setting
     }
 }
 
@@ -183,8 +182,8 @@ void Screen_EPD_EXT3_Fast::COG_sendImageDataFast()
     uint8_t * nextBuffer = _newImage;
     uint8_t * previousBuffer = _newImage + _pageColourSize;
 
-    _sendIndexData(0x10, previousBuffer, _frameSize); // Previous frame
-    _sendIndexData(0x13, nextBuffer, _frameSize); // Next frame
+    b_sendIndexData(0x10, previousBuffer, _frameSize); // Previous frame
+    b_sendIndexData(0x13, nextBuffer, _frameSize); // Next frame
     memcpy(previousBuffer, nextBuffer, _frameSize); // Copy displayed next to previous
 }
 
@@ -195,30 +194,28 @@ void Screen_EPD_EXT3_Fast::COG_update(uint8_t updateMode)
     {
         uint8_t index50b_work[1]; // Vcom
         index50b_work[0] = index50b_data[0]; // 0x07
-        _sendIndexData(0x50, index50b_work, 1); // Vcom and data interval setting
+        b_sendIndexData(0x50, index50b_work, 1); // Vcom and data interval setting
     }
 
-    _sendCommand8(0x04); // Power on
+    b_sendCommand8(0x04); // Power on
     digitalWrite(_pin.panelCS, HIGH); // CS# = 1
-    _waitBusy();
+    b_waitBusy();
 
-    _sendCommand8(0x12); // Display Refresh
+    b_sendCommand8(0x12); // Display Refresh
     digitalWrite(_pin.panelCS, HIGH); // CS# = 1
-    _waitBusy();
+    b_waitBusy();
 }
 
 void Screen_EPD_EXT3_Fast::COG_powerOff()
 {
-    _sendCommand8(0x02); // Turn off DC/DC
+    b_sendCommand8(0x02); // Turn off DC/DC
     digitalWrite(_pin.panelCS, HIGH); // CS# = 1
-    _waitBusy();
+    b_waitBusy();
 }
 /// @endcond
 //
 // === End of COG section
 //
-
-// Utilities
 
 // Class
 Screen_EPD_EXT3_Fast::Screen_EPD_EXT3_Fast(eScreen_EPD_EXT3_t eScreen_EPD_EXT3, pins_t board)
@@ -233,7 +230,22 @@ void Screen_EPD_EXT3_Fast::begin()
     _codeExtra = (_eScreen_EPD_EXT3 >> 16) & 0xff;
     _codeSize = (_eScreen_EPD_EXT3 >> 8) & 0xff;
     _codeType = _eScreen_EPD_EXT3 & 0xff;
-    _screenColourBits = 2; // BWR
+    _screenColourBits = 2; // BWR and BWRY
+
+    // Configure board
+switch (_codeSize)
+{
+        case 0x58: // 5.81"
+        case 0x74: // 7.40"
+
+    u_begin(_pin, FAMILY_MEDIUM, 50);
+    break;
+
+    default:
+
+    u_begin(_pin, FAMILY_SMALL, 50);
+    break;
+}
 
     switch (_codeSize)
     {
@@ -321,7 +333,7 @@ void Screen_EPD_EXT3_Fast::begin()
 
     _bufferDepth = _screenColourBits; // 2 colours
     _bufferSizeV = _screenSizeV; // vertical = wide size
-    _bufferSizeH = _screenSizeH / 8; // horizontal = small size 112 / 8;
+    _bufferSizeH = _screenSizeH / 8; // horizontal = small size 112 / 8; 1 bit per pixel
 
     // Force conversion for two unit16_t multiplication into uint32_t.
     // Actually for 1 colour; BWR requires 2 pages.
@@ -446,111 +458,72 @@ void Screen_EPD_EXT3_Fast::begin()
         case 0x58: // 5.81"
         case 0x74: // 7.40"
 
-            _reset(200, 20, 200, 50, 5); // medium
+            b_reset(200, 20, 200, 50, 5); // medium
             break;
 
         case 0x96: // 9.69"
         case 0xB9: // 11.98"
 
-            _reset(200, 20, 200, 200, 5); // large
+            b_reset(200, 20, 200, 200, 5); // large
             break;
 
         default:
 
-            _reset(5, 5, 10, 5, 5); // small
+            b_reset(5, 5, 10, 5, 5); // small
             break;
     } // _codeSize
 
-    // Check screen and get tables
+    // Check type and get tables
     COG_getUserData(); // nothing sent to panel
-
-    _screenWidth = _screenSizeH;
-    _screenHeigth = _screenSizeV;
 
     // Standard
     hV_Screen_Buffer::begin();
 
     setOrientation(0);
-    if (_f_fontMax() > 0)
+    if (f_fontMax() > 0)
     {
-        _f_selectFont(0);
+        f_selectFont(0);
     }
-    _f_fontSolid = false;
+    f_fontSolid = false;
 
     _penSolid = false;
     _invert = false;
 
     // Report
-    Serial.println(formatString("= Screen %s %ix%i", WhoAmI(), screenSizeX(), screenSizeY()));
-    Serial.println(formatString("= PDLS v%i", SCREEN_EPD_EXT3_RELEASE));
+    Serial.println(formatString("= Screen %s %ix%i", WhoAmI().c_str(), screenSizeX(), screenSizeY()));
+    Serial.println(formatString("= PDLS %s v%i.%i.%i", SCREEN_EPD_EXT3_VARIANT, SCREEN_EPD_EXT3_RELEASE / 100, (SCREEN_EPD_EXT3_RELEASE / 10) % 10, SCREEN_EPD_EXT3_RELEASE % 10));
 
     clear();
 }
 
-void Screen_EPD_EXT3_Fast::_reset(uint32_t ms1, uint32_t ms2, uint32_t ms3, uint32_t ms4, uint32_t ms5)
-{
-    delay_ms(ms1); // delay_ms 5ms
-    digitalWrite(_pin.panelReset, HIGH); // RES# = 1
-    delay_ms(ms2); // delay_ms 5ms
-    digitalWrite(_pin.panelReset, LOW);
-    delay_ms(ms3);
-    digitalWrite(_pin.panelReset, HIGH);
-    delay_ms(ms4);
-    digitalWrite(_pin.panelCS, HIGH); // CS# = 1
-    delay_ms(ms5);
-}
-
 String Screen_EPD_EXT3_Fast::WhoAmI()
 {
-    String text = "iTC ";
-    text += String(_screenDiagonal / 100);
-    text += ".";
-    text += String(_screenDiagonal % 100);
-    text += "\" -";
+    char work[64] = {0};
+    u_WhoAmI(work);
 
-#if (FONT_MODE == USE_FONT_HEADER)
+    return formatString("iTC %i.%02i\"%s", _screenDiagonal / 100, _screenDiagonal % 100, work);
+}
 
-    text += "H";
+uint8_t Screen_EPD_EXT3_Fast::flushMode(uint8_t updateMode)
+{
+    updateMode = checkTemperatureMode(updateMode);
 
-#elif (FONT_MODE == USE_FONT_FLASH)
-
-    text += "F";
-
-#elif (FONT_MODE == USE_FONT_TERMINAL)
-
-    text += "T";
-
-#else
-
-    text += "?";
-
-#endif // FONT_MODE
-
-    if (_codeExtra > 0)
+    switch (updateMode)
     {
-        if (_codeExtra & FEATURE_FAST)
-        {
-            text +=  "F";
-        }
-        if (_codeExtra & FEATURE_TOUCH)
-        {
-            text +=  "T";
-        }
-        if (_codeExtra & FEATURE_OTHER)
-        {
-            text +=  "A";
-        }
-        if (_codeExtra & FEATURE_WIDE_TEMPERATURE)
-        {
-            text +=  "W";
-        }
-        if (_codeExtra & FEATURE_RED)
-        {
-            text +=  "R";
-        }
+        case UPDATE_FAST:
+        case UPDATE_PARTIAL:
+        case UPDATE_GLOBAL:
+
+            _flushFast();
+            break;
+
+        default:
+
+            Serial.println("* PDLS - UPDATE_NONE invoked");
+            break;
     }
 
-    return text;
+    return updateMode;
 }
 
 void Screen_EPD_EXT3_Fast::flush()
@@ -607,11 +580,6 @@ void Screen_EPD_EXT3_Fast::regenerate()
     delay(100);
 }
 
-void Screen_EPD_EXT3_Fast::invert(bool flag)
-{
-    _invert = flag;
-}
-
 void Screen_EPD_EXT3_Fast::_setPoint(uint16_t x1, uint16_t y1, uint16_t colour)
 {
     // Orient and check coordinates are within screen
@@ -620,8 +588,6 @@ void Screen_EPD_EXT3_Fast::_setPoint(uint16_t x1, uint16_t y1, uint16_t colour)
     {
         return;
     }
-
-    uint32_t z1 = _getZ(x1, y1);
 
     // Convert combined colours into basic colours
     bool flagOdd = ((x1 + y1) % 2 == 0);
@@ -638,16 +604,20 @@ void Screen_EPD_EXT3_Fast::_setPoint(uint16_t x1, uint16_t y1, uint16_t colour)
         }
     }
 
+    // Coordinates
+    uint32_t z1 = _getZ(x1, y1);
+    uint16_t b1 = _getB(x1, y1);
+
     // Basic colours
     if ((colour == myColours.white) xor _invert)
     {
         // physical black 00
-        bitClear(_newImage[z1], 7 - (y1 % 8));
+        bitClear(_newImage[z1], b1);
     }
     else if ((colour == myColours.black) xor _invert)
     {
         // physical white 10
-        bitSet(_newImage[z1], 7 - (y1 % 8));
+        bitSet(_newImage[z1], b1);
     }
 }
 
@@ -658,7 +628,7 @@ void Screen_EPD_EXT3_Fast::_setOrientation(uint8_t orientation)
 
 bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
 {
-    bool flagError = true; // false = success, true = error
+    bool _flagError = true; // false = success, true = error
     switch (_orientation)
     {
         case 3: // checked, previously 1
@@ -666,7 +636,7 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
             if ((x < _screenSizeV) and (y < _screenSizeH))
             {
                 x = _screenSizeV - 1 - x;
-                flagError = false;
+                _flagError = false;
             }
             break;
 
@@ -677,7 +647,7 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
                 x = _screenSizeH - 1 - x;
                 y = _screenSizeV - 1 - y;
                 swap(x, y);
-                flagError = false;
+                _flagError = false;
             }
             break;
 
@@ -686,7 +656,7 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
             if ((x < _screenSizeV) and (y < _screenSizeH))
             {
                 y = _screenSizeH - 1 - y;
-                flagError = false;
+                _flagError = false;
             }
             break;
 
@@ -695,12 +665,12 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
             if ((x < _screenSizeH) and (y < _screenSizeV))
             {
                 swap(x, y);
-                flagError = false;
+                _flagError = false;
             }
             break;
     }
 
-    return flagError;
+    return _flagError;
 }
 
 uint32_t Screen_EPD_EXT3_Fast::_getZ(uint16_t x1, uint16_t y1)
@@ -714,6 +684,15 @@ uint32_t Screen_EPD_EXT3_Fast::_getZ(uint16_t x1, uint16_t y1)
     return z1;
 }
 
+uint16_t Screen_EPD_EXT3_Fast::_getB(uint16_t x1, uint16_t y1)
+{
+    uint16_t b1 = 0;
+
+    b1 = 7 - (y1 % 8);
+
+    return b1;
+}
+
 uint16_t Screen_EPD_EXT3_Fast::_getPoint(uint16_t x1, uint16_t y1)
 {
     // Orient and check coordinates are within screen
@@ -723,174 +702,31 @@ uint16_t Screen_EPD_EXT3_Fast::_getPoint(uint16_t x1, uint16_t y1)
         return 0;
     }
 
-    uint16_t result = 0;
-    uint8_t value = 0;
+    uint16_t _result = 0;
+    uint8_t _value = 0;
 
+    // Coordinates
     uint32_t z1 = _getZ(x1, y1);
+    uint16_t b1 = _getB(x1, y1);
 
-    value = bitRead(_newImage[z1], 7 - (y1 % 8));
-    value <<= 4;
-    value &= 0b11110000;
+    _value = bitRead(_newImage[z1], b1);
+    _value <<= 4;
+    _value &= 0b11110000;
 
     // red = 0-1, black = 1-0, white 0-0
-    switch (value)
+    switch (_value)
     {
         case 0x10:
 
-            result = myColours.black;
+            _result = myColours.black;
             break;
 
         default:
 
-            result = myColours.white;
+            _result = myColours.white;
             break;
     }
 
-    return result;
+    return _result;
 }
-
-void Screen_EPD_EXT3_Fast::point(uint16_t x1, uint16_t y1, uint16_t colour)
-{
-    _setPoint(x1, y1, colour);
-}
-
-uint16_t Screen_EPD_EXT3_Fast::readPixel(uint16_t x1, uint16_t y1)
-{
-    return _getPoint(x1, y1);
-}
-
-// Utilities
-void Screen_EPD_EXT3_Fast::_sendCommand8(uint8_t command)
-{
-    digitalWrite(_pin.panelDC, LOW);
-    digitalWrite(_pin.panelCS, LOW);
-
-    SPI.transfer(command);
-
-    digitalWrite(_pin.panelCS, HIGH);
-}
-
-void Screen_EPD_EXT3_Fast::_waitBusy()
-{
-    // LOW = busy, HIGH = ready
-    while (digitalRead(_pin.panelBusy) != HIGH)
-    {
-        delay(32); // non-blocking
-    }
-}
-
-void Screen_EPD_EXT3_Fast::_sendIndexData(uint8_t index, const uint8_t * data, uint32_t size)
-{
-    digitalWrite(_pin.panelDC, LOW); // DC Low = Command
-    digitalWrite(_pin.panelCS, LOW); // CS Low = Select
-
-    delayMicroseconds(50);
-    SPI.transfer(index);
-    delayMicroseconds(50);
-
-    digitalWrite(_pin.panelCS, HIGH); // CS High = Unselect
-    digitalWrite(_pin.panelDC, HIGH); // DC High = Data
-    digitalWrite(_pin.panelCS, LOW); // CS Low = Select
-
-    delayMicroseconds(50);
-    for (uint32_t i = 0; i < size; i++)
-    {
-        SPI.transfer(data[i]);
-    }
-    delayMicroseconds(50);
-
-    digitalWrite(_pin.panelCS, HIGH); // CS High = Unselect
-}
-
-//
-// === Temperature section
-//
-void Screen_EPD_EXT3_Fast::setTemperatureC(int8_t temperatureC)
-{
-    _temperature = temperatureC;
-
-    uint8_t _temperature2;
-    if (_temperature < 0)
-    {
-        _temperature2 = -_temperature;
-        _temperature2 = (uint8_t)(~_temperature2) + 1; // 2's complement
-    }
-    else
-    {
-        _temperature2 = _temperature;
-    }
-    indexE5_data[0] = _temperature2;
-}
-
-void Screen_EPD_EXT3_Fast::setTemperatureF(int16_t temperatureF)
-{
-    int8_t temperatureC = ((temperatureF - 32) * 5) / 9; // C = (F - 32) * 5 / 9
-    setTemperatureC(temperatureC);
-}
-
-uint8_t Screen_EPD_EXT3_Fast::checkTemperatureMode(uint8_t updateMode)
-{
-    // #define FEATURE_FAST 0x01 ///< With embedded fast update
-    // #define FEATURE_TOUCH 0x02 ///< With capacitive touch panel
-    // #define FEATURE_OTHER 0x04 ///< With other feature
-    // #define FEATURE_WIDE_TEMPERATURE 0x08 ///< With wide operating temperature
-    // #define FEATURE_RED 0x10 ///< With red colour
-    // #define FEATURE_RED_YELLOW 0x20 ///< With red and yellow colours
-
-    updateMode = UPDATE_FAST;
-
-    switch (_codeExtra & 0x19)
-    {
-        case FEATURE_FAST: // PS series
-
-            // Fast 	PS 	Embedded fast update 	FU: +15 to +30 °C 	GU: 0 to +50 °C
-            if ((_temperature < 15) or (_temperature > 30))
-            {
-                updateMode = UPDATE_NONE;
-            }
-            break;
-
-        case (FEATURE_FAST | FEATURE_WIDE_TEMPERATURE): // KS series
-
-            // Wide 	KS 	Wide temperature and embedded fast update 	FU: 0 to +50 °C 	GU: -15 to +60 °C
-            if ((_temperature < -15) or (_temperature > 60))
-            {
-                updateMode = UPDATE_NONE;
-            }
-            break;
-
-        default: // CS series
-
-            // Normal 	CS 	Global update above 0 °C 	FU: - 	GU: 0 to +50 °C
-            updateMode = UPDATE_NONE;
-            break;
-    }
-
-    return updateMode;
-}
-
-uint8_t Screen_EPD_EXT3_Fast::flushMode(uint8_t updateMode)
-{
-    updateMode = checkTemperatureMode(updateMode);
-
-    switch (updateMode)
-    {
-        case UPDATE_FAST:
-        case UPDATE_PARTIAL:
-        case UPDATE_GLOBAL:
-
-            _flushFast();
-            break;
-
-        default:
-
-            Serial.println("* PDLS - UPDATE_NONE invoked");
-            break;
-    }
-
-    return updateMode;
-}
-//
-// === End of Temperature section
-//
 
