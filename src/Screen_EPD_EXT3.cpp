@@ -23,6 +23,8 @@
 // Release 609: Added temperature management
 // Release 610: Removed partial update
 // Release 700: Refactored screen and board functions
+// Release 701: Improved functions names consistency
+// Release 701: Added support for eScreen_EPD_EXT3_290_0F_Wide xE2290KS0Fx
 //
 
 // Library header
@@ -77,7 +79,8 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
     uint8_t index00_work[2]; // PSR
 
     indexE0_work[0] = indexE0_data[0];
-    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL)) // Specific settings for fast update
+    indexE5_data[0] = u_temperature;
+    if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL)) // Specific settings for fast update
     {
         indexE5_work[0] = indexE5_data[0] | 0x40; // temperature | 0x40
         index00_work[0] = index00_data[0] | 0x10; // PSR0 | 0x10
@@ -88,19 +91,28 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
         indexE5_work[0] = indexE5_data[0]; // Temperature
         index00_work[0] = index00_data[0]; // PSR0
         index00_work[1] = index00_data[1]; // PSR1
-    } // _codeExtra updateMode
+    } // u_codeExtra updateMode
 
     // New algorithm
     uint8_t index00_reset[] = {0x0e};
     b_sendIndexData(0x00, index00_reset, 1); // Soft-reset
     b_waitBusy();
 
-    b_sendIndexData(0xe5, indexE5_work, 1); // Input Temperature: 25C
+    b_sendIndexData(0xe5, indexE5_work, 1); // Input Temperature
     b_sendIndexData(0xe0, indexE0_work, 1); // Activate Temperature
-    b_sendIndexData(0x00, index00_work, 2); // PSR
+
+    if (u_codeSize == 0x29) // No PSR
+    {
+        b_sendCommandData8(0x4d, 0x55);
+        b_sendCommandData8(0xe9, 0x02);
+    }
+    else
+    {
+        b_sendIndexData(0x00, index00_work, 2); // PSR
+    }
 
     // Specific settings for fast update, all screens
-    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL))
+    if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL))
     {
         uint8_t index50c_work[1]; // Vcom
         index50c_work[0] = index50c_data[0]; // 0x07
@@ -108,7 +120,7 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
     }
 
     // Additional settings for fast update, 154 213 266 and 370 screens (_flag50)
-    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
+    if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
     {
         uint8_t index50a_work[1]; // Vcom
         index50a_work[0] = index50a_data[0]; // 0x27
@@ -118,10 +130,10 @@ void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
 
 void Screen_EPD_EXT3_Fast::COG_getUserData()
 {
-    uint16_t _codeSizeType = _eScreen_EPD_EXT3 & 0xffff;
+    uint16_t u_codeSizeType = u_eScreen_EPD_EXT3 & 0xffff;
 
     // Size cSize cType Driver
-    switch (_codeSizeType)
+    switch (u_codeSizeType)
     {
         case 0x150C: // 1.54” = 0xcf, 0x02
         case 0x210E: // 2.13” = 0xcf, 0x02
@@ -146,6 +158,13 @@ void Screen_EPD_EXT3_Fast::COG_getUserData()
             _flag50 = false;
             break;
 
+        case 0x290F: // 2.90” - No PSR
+
+            index00_data[0] = 0x00;
+            index00_data[1] = 0x00;
+            _flag50 = false;
+            break;
+
         case 0x370C: // 3.70” = 0xcf, 0x0f
 
             index00_data[0] = 0xcf;
@@ -167,8 +186,9 @@ void Screen_EPD_EXT3_Fast::COG_getUserData()
             _flag50 = true;
             break;
 
-        case 0x580B:
+        case 0x580B: // 5.81"
 
+            _flag50 = false;
             break;
 
         default:
@@ -179,18 +199,18 @@ void Screen_EPD_EXT3_Fast::COG_getUserData()
 
 void Screen_EPD_EXT3_Fast::COG_sendImageDataFast()
 {
-    uint8_t * nextBuffer = _newImage;
-    uint8_t * previousBuffer = _newImage + _pageColourSize;
+    uint8_t * nextBuffer = u_newImage;
+    uint8_t * previousBuffer = u_newImage + u_pageColourSize;
 
-    b_sendIndexData(0x10, previousBuffer, _frameSize); // Previous frame
-    b_sendIndexData(0x13, nextBuffer, _frameSize); // Next frame
-    memcpy(previousBuffer, nextBuffer, _frameSize); // Copy displayed next to previous
+    b_sendIndexData(0x10, previousBuffer, u_frameSize); // Previous frame
+    b_sendIndexData(0x13, nextBuffer, u_frameSize); // Next frame
+    memcpy(previousBuffer, nextBuffer, u_frameSize); // Copy displayed next to previous
 }
 
 void Screen_EPD_EXT3_Fast::COG_update(uint8_t updateMode)
 {
     // Specific settings for fast update, 154 213 266 and 370 screens (_flag50)
-    if ((_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
+    if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
     {
         uint8_t index50b_work[1]; // Vcom
         index50b_work[0] = index50b_data[0]; // 0x07
@@ -198,18 +218,18 @@ void Screen_EPD_EXT3_Fast::COG_update(uint8_t updateMode)
     }
 
     b_sendCommand8(0x04); // Power on
-    digitalWrite(_pin.panelCS, HIGH); // CS# = 1
+    digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
     b_waitBusy();
 
     b_sendCommand8(0x12); // Display Refresh
-    digitalWrite(_pin.panelCS, HIGH); // CS# = 1
+    digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
     b_waitBusy();
 }
 
 void Screen_EPD_EXT3_Fast::COG_powerOff()
 {
     b_sendCommand8(0x02); // Turn off DC/DC
-    digitalWrite(_pin.panelCS, HIGH); // CS# = 1
+    digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
     b_waitBusy();
 }
 /// @endcond
@@ -217,37 +237,39 @@ void Screen_EPD_EXT3_Fast::COG_powerOff()
 // === End of COG section
 //
 
-// Class
+//
+// === Class section
+//
 Screen_EPD_EXT3_Fast::Screen_EPD_EXT3_Fast(eScreen_EPD_EXT3_t eScreen_EPD_EXT3, pins_t board)
 {
-    _eScreen_EPD_EXT3 = eScreen_EPD_EXT3;
-    _pin = board;
-    _newImage = 0; // nullptr
+    u_eScreen_EPD_EXT3 = eScreen_EPD_EXT3;
+    b_pin = board;
+    u_newImage = 0; // nullptr
 }
 
 void Screen_EPD_EXT3_Fast::begin()
 {
-    _codeExtra = (_eScreen_EPD_EXT3 >> 16) & 0xff;
-    _codeSize = (_eScreen_EPD_EXT3 >> 8) & 0xff;
-    _codeType = _eScreen_EPD_EXT3 & 0xff;
+    u_codeExtra = (u_eScreen_EPD_EXT3 >> 16) & 0xff;
+    u_codeSize = (u_eScreen_EPD_EXT3 >> 8) & 0xff;
+    u_codeType = u_eScreen_EPD_EXT3 & 0xff;
     _screenColourBits = 2; // BWR and BWRY
 
     // Configure board
-switch (_codeSize)
-{
+    switch (u_codeSize)
+    {
         case 0x58: // 5.81"
-        case 0x74: // 7.40"
+        case 0x74: // 7.41"
 
-    u_begin(_pin, FAMILY_MEDIUM, 50);
-    break;
+            b_begin(b_pin, FAMILY_MEDIUM, 50);
+            break;
 
-    default:
+        default:
 
-    u_begin(_pin, FAMILY_SMALL, 50);
-    break;
-}
+            b_begin(b_pin, FAMILY_SMALL, 50);
+            break;
+    }
 
-    switch (_codeSize)
+    switch (u_codeSize)
     {
         case 0x15: // 1.54"
 
@@ -282,6 +304,13 @@ switch (_codeSize)
             _screenSizeV = 296; // vertical = wide size
             _screenSizeH = 128; // horizontal = small size
             _screenDiagonal = 287;
+            break;
+
+        case 0x29: // 2.90"
+
+            _screenSizeV = 384; // vertical = wide size
+            _screenSizeH = 168; // horizontal = small size
+            _screenDiagonal = 290;
             break;
 
         case 0x37: // 3.70" and 3.70"-Touch
@@ -329,89 +358,89 @@ switch (_codeSize)
         default:
 
             break;
-    } // _codeSize
+    } // u_codeSize
 
-    _bufferDepth = _screenColourBits; // 2 colours
-    _bufferSizeV = _screenSizeV; // vertical = wide size
-    _bufferSizeH = _screenSizeH / 8; // horizontal = small size 112 / 8; 1 bit per pixel
+    u_bufferDepth = _screenColourBits; // 2 colours
+    u_bufferSizeV = _screenSizeV; // vertical = wide size
+    u_bufferSizeH = _screenSizeH / 8; // horizontal = small size 112 / 8, 1 bit per pixel
 
     // Force conversion for two unit16_t multiplication into uint32_t.
     // Actually for 1 colour; BWR requires 2 pages.
-    _pageColourSize = (uint32_t)_bufferSizeV * (uint32_t)_bufferSizeH;
+    u_pageColourSize = (uint32_t)u_bufferSizeV * (uint32_t)u_bufferSizeH;
 
-    // _frameSize = _pageColourSize, except for 9.69 and 11.98
+    // u_frameSize = u_pageColourSize, except for 9.69 and 11.98
     // 9.69 and 11.98 combine two half-screens, hence two frames with adjusted size
-    switch (_codeSize)
+    switch (u_codeSize)
     {
         case 0x96: // 9.69"
         case 0xB9: // 11.98"
 
-            _frameSize = _pageColourSize / 2;
+            u_frameSize = u_pageColourSize / 2;
             break;
 
         default:
 
-            _frameSize = _pageColourSize;
+            u_frameSize = u_pageColourSize;
             break;
-    } // _codeSize
+    } // u_codeSize
 
 #if defined(BOARD_HAS_PSRAM) // ESP32 PSRAM specific case
 
-    if (_newImage == 0)
+    if (u_newImage == 0)
     {
         static uint8_t * _newFrameBuffer;
-        _newFrameBuffer = (uint8_t *) ps_malloc(_pageColourSize * _bufferDepth);
-        _newImage = (uint8_t *) _newFrameBuffer;
+        _newFrameBuffer = (uint8_t *) ps_malloc(u_pageColourSize * u_bufferDepth);
+        u_newImage = (uint8_t *) _newFrameBuffer;
     }
 
 #else // default case
 
-    if (_newImage == 0)
+    if (u_newImage == 0)
     {
         static uint8_t * _newFrameBuffer;
-        _newFrameBuffer = new uint8_t[_pageColourSize * _bufferDepth];
-        _newImage = (uint8_t *) _newFrameBuffer;
+        _newFrameBuffer = new uint8_t[u_pageColourSize * u_bufferDepth];
+        u_newImage = (uint8_t *) _newFrameBuffer;
     }
 
 #endif // ESP32 BOARD_HAS_PSRAM
 
-    memset(_newImage, 0x00, _pageColourSize * _bufferDepth);
+    memset(u_newImage, 0x00, u_pageColourSize * u_bufferDepth);
 
     // Initialise the /CS pins
-    pinMode(_pin.panelCS, OUTPUT);
-    digitalWrite(_pin.panelCS, HIGH); // CS# = 1
+    pinMode(b_pin.panelCS, OUTPUT);
+    digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
 
     // New generic solution
-    pinMode(_pin.panelDC, OUTPUT);
-    pinMode(_pin.panelReset, OUTPUT);
-    pinMode(_pin.panelBusy, INPUT); // All Pins 0
+    pinMode(b_pin.panelDC, OUTPUT);
+    pinMode(b_pin.panelReset, OUTPUT);
+    pinMode(b_pin.panelBusy, INPUT); // All Pins 0
 
     // Initialise Flash /CS as HIGH
-    if (_pin.flashCS != NOT_CONNECTED)
+    if (b_pin.flashCS != NOT_CONNECTED)
     {
-        pinMode(_pin.flashCS, OUTPUT);
-        digitalWrite(_pin.flashCS, HIGH);
+        pinMode(b_pin.flashCS, OUTPUT);
+        digitalWrite(b_pin.flashCS, HIGH);
     }
 
     // Initialise slave panel /CS as HIGH
-    if (_pin.panelCSS != NOT_CONNECTED)
+    if (b_pin.panelCSS != NOT_CONNECTED)
     {
-        pinMode(_pin.panelCSS, OUTPUT);
-        digitalWrite(_pin.panelCSS, HIGH);
+        pinMode(b_pin.panelCSS, OUTPUT);
+        digitalWrite(b_pin.panelCSS, HIGH);
     }
 
     // Initialise slave Flash /CS as HIGH
-    if (_pin.flashCSS != NOT_CONNECTED)
+    if (b_pin.flashCSS != NOT_CONNECTED)
     {
-        pinMode(_pin.flashCSS, OUTPUT);
-        digitalWrite(_pin.flashCSS, HIGH);
+        pinMode(b_pin.flashCSS, OUTPUT);
+        digitalWrite(b_pin.flashCSS, HIGH);
     }
 
     // Initialise SD-card /CS as HIGH
-    if (_pin.cardCS != NOT_CONNECTED)
+    if (b_pin.cardCS != NOT_CONNECTED)
     {
-        pinMode(_pin.cardCS, OUTPUT);
-        digitalWrite(_pin.cardCS, HIGH);
+        pinMode(b_pin.cardCS, OUTPUT);
+        digitalWrite(b_pin.cardCS, HIGH);
     }
 
     // Initialise SPI
@@ -452,7 +481,7 @@ switch (_codeSize)
 #endif // ENERGIA
 
     // Reset
-    switch (_codeSize)
+    switch (u_codeSize)
     {
         case 0x56: // 5.65"
         case 0x58: // 5.81"
@@ -471,7 +500,7 @@ switch (_codeSize)
 
             b_reset(5, 5, 10, 5, 5); // small
             break;
-    } // _codeSize
+    } // u_codeSize
 
     // Check type and get tables
     COG_getUserData(); // nothing sent to panel
@@ -487,7 +516,7 @@ switch (_codeSize)
     f_fontSolid = false;
 
     _penSolid = false;
-    _invert = false;
+    u_invert = false;
 
     // Report
     Serial.println(formatString("= Screen %s %ix%i", WhoAmI().c_str(), screenSizeX(), screenSizeY()));
@@ -511,7 +540,6 @@ uint8_t Screen_EPD_EXT3_Fast::flushMode(uint8_t updateMode)
     switch (updateMode)
     {
         case UPDATE_FAST:
-        case UPDATE_PARTIAL:
         case UPDATE_GLOBAL:
 
             _flushFast();
@@ -541,6 +569,7 @@ void Screen_EPD_EXT3_Fast::_flushFast()
 
     // Update
     COG_update(UPDATE_FAST);
+
     COG_powerOff();
 }
 
@@ -548,24 +577,24 @@ void Screen_EPD_EXT3_Fast::clear(uint16_t colour)
 {
     if (colour == myColours.grey)
     {
-        for (uint16_t i = 0; i < _bufferSizeV; i++)
+        for (uint16_t i = 0; i < u_bufferSizeV; i++)
         {
             uint16_t pattern = (i % 2) ? 0b10101010 : 0b01010101;
-            for (uint16_t j = 0; j < _bufferSizeH; j++)
+            for (uint16_t j = 0; j < u_bufferSizeH; j++)
             {
-                _newImage[i * _bufferSizeH + j] = pattern;
+                u_newImage[i * u_bufferSizeH + j] = pattern;
             }
         }
     }
-    else if ((colour == myColours.white) xor _invert)
+    else if ((colour == myColours.white) xor u_invert)
     {
         // physical black 00
-        memset(_newImage, 0x00, _pageColourSize);
+        memset(u_newImage, 0x00, u_pageColourSize);
     }
     else
     {
         // physical white 10
-        memset(_newImage, 0xff, _pageColourSize);
+        memset(u_newImage, 0xff, u_pageColourSize);
     }
 }
 
@@ -609,15 +638,15 @@ void Screen_EPD_EXT3_Fast::_setPoint(uint16_t x1, uint16_t y1, uint16_t colour)
     uint16_t b1 = _getB(x1, y1);
 
     // Basic colours
-    if ((colour == myColours.white) xor _invert)
+    if ((colour == myColours.white) xor u_invert)
     {
         // physical black 00
-        bitClear(_newImage[z1], b1);
+        bitClear(u_newImage[z1], b1);
     }
-    else if ((colour == myColours.black) xor _invert)
+    else if ((colour == myColours.black) xor u_invert)
     {
         // physical white 10
-        bitSet(_newImage[z1], b1);
+        bitSet(u_newImage[z1], b1);
     }
 }
 
@@ -679,7 +708,7 @@ uint32_t Screen_EPD_EXT3_Fast::_getZ(uint16_t x1, uint16_t y1)
     // According to 11.98 inch Spectra Application Note
     // at http:// www.pervasivedisplays.com/LiteratureRetrieve.aspx?ID=245146
 
-    z1 = (uint32_t)x1 * _bufferSizeH + (y1 >> 3);
+    z1 = (uint32_t)x1 * u_bufferSizeH + (y1 >> 3);
 
     return z1;
 }
@@ -709,7 +738,7 @@ uint16_t Screen_EPD_EXT3_Fast::_getPoint(uint16_t x1, uint16_t y1)
     uint32_t z1 = _getZ(x1, y1);
     uint16_t b1 = _getB(x1, y1);
 
-    _value = bitRead(_newImage[z1], b1);
+    _value = bitRead(u_newImage[z1], b1);
     _value <<= 4;
     _value &= 0b11110000;
 
@@ -729,4 +758,15 @@ uint16_t Screen_EPD_EXT3_Fast::_getPoint(uint16_t x1, uint16_t y1)
 
     return _result;
 }
+//
+// === End of Class section
+//
+
+//
+// === Touch section
+//
+
+//
+// === End of Touch section
+//
 

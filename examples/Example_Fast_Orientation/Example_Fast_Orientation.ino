@@ -15,19 +15,21 @@
 /// @n
 ///
 
+// Screen
+#include "PDLS_EXT3_Basic_Fast.h"
+
 // SDK
-#if defined(ENERGIA) // LaunchPad specific
-#include "Energia.h"
-#else // Arduino general
-#include "Arduino.h"
-#endif // SDK
+// #include <Arduino.h>
+#include "hV_HAL_Peripherals.h"
+
+// Configuration
+#include "hV_Configuration.h"
+
+// Include application, user and local libraries
+// #include <SPI.h>
 
 // Set parameters
 #define DISPLAY_FAST_ORIENTATION 1
-
-// Include application, user and local libraries
-#include "SPI.h"
-#include "PDLS_EXT3_Basic_Fast.h"
 
 // Define structures and classes
 
@@ -112,10 +114,6 @@ void setup()
 
     Serial.println("=== ");
     Serial.println();
-
-#if defined(ARDUINO_ARCH_PIDUINO)
-    exit(0);
-#endif
 }
 
 // Add loop code
