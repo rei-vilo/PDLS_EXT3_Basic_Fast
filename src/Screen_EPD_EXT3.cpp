@@ -25,6 +25,7 @@
 // Release 700: Refactored screen and board functions
 // Release 701: Improved functions names consistency
 // Release 701: Added support for eScreen_EPD_EXT3_290_0F_Wide xE2290KS0Fx
+// Release 702: Added support for eScreen_EPD_EXT3_206_0E_Wide xE2206KS0Ex
 //
 
 // Library header
@@ -138,6 +139,13 @@ void Screen_EPD_EXT3_Fast::COG_getUserData()
         case 0x150C: // 1.54” = 0xcf, 0x02
         case 0x210E: // 2.13” = 0xcf, 0x02
         case 0x260C: // 2.66” = 0xcf, 0x02
+
+            index00_data[0] = 0xcf;
+            index00_data[1] = 0x02;
+            _flag50 = true;
+            break;
+
+        case 0x200E: // 2.06” = 0xcf, 0x02
 
             index00_data[0] = 0xcf;
             index00_data[1] = 0x02;
@@ -276,6 +284,13 @@ void Screen_EPD_EXT3_Fast::begin()
             _screenSizeV = 152; // vertical = wide size
             _screenSizeH = 152; // horizontal = small size
             _screenDiagonal = 154;
+            break;
+
+        case 0x20: // 2.06"
+
+            _screenSizeV = 248; // vertical = wide size
+            _screenSizeH = 128; // horizontal = small size
+            _screenDiagonal = 206;
             break;
 
         case 0x21: // 2.13"
@@ -613,7 +628,7 @@ void Screen_EPD_EXT3_Fast::_setPoint(uint16_t x1, uint16_t y1, uint16_t colour)
 {
     // Orient and check coordinates are within screen
     // _orientCoordinates() returns false = success, true = error
-    if (_orientCoordinates(x1, y1))
+    if (_orientCoordinates(x1, y1) == RESULT_ERROR)
     {
         return;
     }
@@ -657,7 +672,7 @@ void Screen_EPD_EXT3_Fast::_setOrientation(uint8_t orientation)
 
 bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
 {
-    bool _flagError = true; // false = success, true = error
+    bool _flagResult = RESULT_ERROR; // false = success, true = error
     switch (_orientation)
     {
         case 3: // checked, previously 1
@@ -665,7 +680,7 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
             if ((x < _screenSizeV) and (y < _screenSizeH))
             {
                 x = _screenSizeV - 1 - x;
-                _flagError = false;
+                _flagResult = RESULT_SUCCESS;
             }
             break;
 
@@ -676,7 +691,7 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
                 x = _screenSizeH - 1 - x;
                 y = _screenSizeV - 1 - y;
                 swap(x, y);
-                _flagError = false;
+                _flagResult = RESULT_SUCCESS;
             }
             break;
 
@@ -685,7 +700,7 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
             if ((x < _screenSizeV) and (y < _screenSizeH))
             {
                 y = _screenSizeH - 1 - y;
-                _flagError = false;
+                _flagResult = RESULT_SUCCESS;
             }
             break;
 
@@ -694,12 +709,12 @@ bool Screen_EPD_EXT3_Fast::_orientCoordinates(uint16_t & x, uint16_t & y)
             if ((x < _screenSizeH) and (y < _screenSizeV))
             {
                 swap(x, y);
-                _flagError = false;
+                _flagResult = RESULT_SUCCESS;
             }
             break;
     }
 
-    return _flagError;
+    return _flagResult;
 }
 
 uint32_t Screen_EPD_EXT3_Fast::_getZ(uint16_t x1, uint16_t y1)
@@ -726,7 +741,7 @@ uint16_t Screen_EPD_EXT3_Fast::_getPoint(uint16_t x1, uint16_t y1)
 {
     // Orient and check coordinates are within screen
     // _orientCoordinates() returns false = success, true = error
-    if (_orientCoordinates(x1, y1))
+    if (_orientCoordinates(x1, y1) == RESULT_ERROR)
     {
         return 0;
     }

@@ -15,17 +15,17 @@
 /// @n Supported screens with embedded fast update
 /// * 1.54 reference xE2154PS0Cx
 /// * 2.13 reference xE2213PS0Ex
-/// * 2.66 reference xE2266PS0Cx (not tested)
+/// * 2.66 reference xE2266PS0Cx
 /// * 2.71 reference xE2271PS09x
 /// * 2.87 reference xE2287PS09x
 /// * 2.90 reference xE2290KSxxx
 /// * 3.70 reference xE2370PS0Cx
-/// * 4.17 reference xE2417PS0Dx (not tested)
+/// * 4.17 reference xE2417PS0Dx
 /// * 4.37 reference xE2437PS0Cx
 ///
 /// @author Rei Vilo
-/// @date 21 Oct 2023
-/// @version 701
+/// @date 21 Nov 2023
+/// @version 702
 ///
 /// @copyright (c) Rei Vilo, 2010-2023
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
@@ -60,8 +60,8 @@
 #error Required hV_HAL_PERIPHERALS_RELEASE 700
 #endif // hV_HAL_PERIPHERALS_RELEASE
 
-#if (hV_CONFIGURATION_RELEASE < 700)
-#error Required hV_CONFIGURATION_RELEASE 700
+#if (hV_CONFIGURATION_RELEASE < 702)
+#error Required hV_CONFIGURATION_RELEASE 702
 #endif // hV_CONFIGURATION_RELEASE
 
 #if (hV_SCREEN_BUFFER_RELEASE < 700)
@@ -76,7 +76,7 @@
 ///
 /// @brief Library release number
 ///
-#define SCREEN_EPD_EXT3_RELEASE 701
+#define SCREEN_EPD_EXT3_RELEASE 702
 
 ///
 /// @brief Library variant
@@ -169,7 +169,7 @@ class Screen_EPD_EXT3_Fast final : public hV_Screen_Buffer, public hV_Utilities_
     /// @brief Check and orient coordinates, logical coordinates
     /// @param x x-axis coordinate, modified
     /// @param y y-axis coordinate, modified
-    /// @return false = success, true = error
+    /// @return RESULT_SUCCESS = false = success, RESULT_ERROR = true = error
     ///
     bool _orientCoordinates(uint16_t & x, uint16_t & y); // compulsory
 

@@ -22,14 +22,15 @@
 // #include <Arduino.h>
 #include "hV_HAL_Peripherals.h"
 
-// Configuration
-#include "hV_Configuration.h"
-
 // Include application, user and local libraries
 // #include <SPI.h>
 
+// Configuration
+#include "hV_Configuration.h"
+
 // Set parameters
 #define DISPLAY_FAST_LINE 1
+
 // Define structures and classes
 
 // Define variables and constants
@@ -52,6 +53,7 @@ void wait(uint8_t second)
     Serial.print("         \r");
 }
 
+// Functions
 ///
 /// @brief Flush screen and display time
 ///
@@ -114,15 +116,14 @@ void setup()
 
 #if (DISPLAY_FAST_LINE == 1)
 
-    Serial.print("DISPLAY_FAST_LINE... ");
+    Serial.println("DISPLAY_FAST_LINE... ");
     myScreen.clear();
     displayFastLine();
-    Serial.println("done");
-
     wait(4);
+
 #endif // DISPLAY_FAST_LINE
 
-    Serial.print("White... ");
+    Serial.println("White... ");
     myScreen.clear();
     flush_ms();
 

@@ -22,11 +22,11 @@
 // #include <Arduino.h>
 #include "hV_HAL_Peripherals.h"
 
-// Configuration
-#include "hV_Configuration.h"
-
 // Include application, user and local libraries
 // #include <SPI.h>
+
+// Configuration
+#include "hV_Configuration.h"
 
 // Set parameters
 #define DISPLAY_FAST_ORIENTATION 1
@@ -53,6 +53,7 @@ void wait(uint8_t second)
     Serial.print("         \r");
 }
 
+// Functions
 ///
 /// @brief Flush screen and display time
 ///
@@ -99,16 +100,15 @@ void setup()
     Serial.println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
 
 #if (DISPLAY_FAST_ORIENTATION == 1)
-    Serial.print("DISPLAY_FAST_ORIENTATION... ");
+
+    Serial.println("DISPLAY_FAST_ORIENTATION... ");
     myScreen.clear();
     displayFastOrientation();
-    Serial.println("done");
-
     wait(4);
 
 #endif // DISPLAY_FAST_ORIENTATION
 
-    Serial.print("White... ");
+    Serial.println("White... ");
     myScreen.clear();
     flush_ms();
 
