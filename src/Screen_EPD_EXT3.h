@@ -13,6 +13,8 @@
 /// * Temperature: 15 to 30 °C
 ///
 /// @n Supported screens with embedded fast update
+/// * 1.50 reference xE2150PS0Jx
+/// * 1.52 reference xE2152PS0Jx
 /// * 1.54 reference xE2154PS0Cx
 /// * 2.13 reference xE2213PS0Ex
 /// * 2.66 reference xE2266PS0Cx
@@ -24,8 +26,8 @@
 /// * 4.37 reference xE2437PS0Cx
 ///
 /// @author Rei Vilo
-/// @date 21 Nov 2023
-/// @version 702
+/// @date 21 Dec 2023
+/// @version 703
 ///
 /// @copyright (c) Rei Vilo, 2010-2023
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
@@ -76,7 +78,7 @@
 ///
 /// @brief Library release number
 ///
-#define SCREEN_EPD_EXT3_RELEASE 702
+#define SCREEN_EPD_EXT3_RELEASE 703
 
 ///
 /// @brief Library variant
@@ -226,6 +228,7 @@ class Screen_EPD_EXT3_Fast final : public hV_Screen_Buffer, public hV_Utilities_
     void _flushFast();
 
     bool _flag50;
+    bool _flag152;
 
     //
     // === Touch section

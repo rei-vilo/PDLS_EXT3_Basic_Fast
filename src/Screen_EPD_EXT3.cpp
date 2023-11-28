@@ -26,6 +26,7 @@
 // Release 701: Improved functions names consistency
 // Release 701: Added support for eScreen_EPD_EXT3_290_0F_Wide xE2290KS0Fx
 // Release 702: Added support for eScreen_EPD_EXT3_206_0E_Wide xE2206KS0Ex
+// Release 703: Added support for eScreen_EPD_EXT3_152_0J_Wide xE2152KS0Jx
 //
 
 // Library header
@@ -74,134 +75,166 @@ uint8_t index50c_data[] = {0x07}; // All screens, constant
 
 void Screen_EPD_EXT3_Fast::COG_initial(uint8_t updateMode)
 {
-    // Work settings
-    uint8_t indexE0_work[1]; // Activate temperature
-    uint8_t indexE5_work[1]; // Temperature
-    uint8_t index00_work[2]; // PSR
-
-    indexE0_work[0] = indexE0_data[0];
-    indexE5_data[0] = u_temperature;
-    if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL)) // Specific settings for fast update
+    if (_flag152 == true)
     {
-        indexE5_work[0] = indexE5_data[0] | 0x40; // temperature | 0x40
-        index00_work[0] = index00_data[0] | 0x10; // PSR0 | 0x10
-        index00_work[1] = index00_data[1] | 0x02; // PSR1 | 0x02
-    }
-    else // Common settings
-    {
-        indexE5_work[0] = indexE5_data[0]; // Temperature
-        index00_work[0] = index00_data[0]; // PSR0
-        index00_work[1] = index00_data[1]; // PSR1
-    } // u_codeExtra updateMode
+        // Soft reset
+        b_sendCommand8(0x12);
+        digitalWrite(b_pin.panelDC, LOW); // Select
+        b_waitBusy(LOW); // 150 and 152 specific
 
-    // New algorithm
-    uint8_t index00_reset[] = {0x0e};
-    b_sendIndexData(0x00, index00_reset, 1); // Soft-reset
-    b_waitBusy();
+        // Work settings
+        b_sendCommandData8(0x1a, u_temperature);
 
-    b_sendIndexData(0xe5, indexE5_work, 1); // Input Temperature
-    b_sendIndexData(0xe0, indexE0_work, 1); // Activate Temperature
-
-    if (u_codeSize == 0x29) // No PSR
-    {
-        b_sendCommandData8(0x4d, 0x55);
-        b_sendCommandData8(0xe9, 0x02);
+        if (updateMode == UPDATE_GLOBAL)
+        {
+            b_sendCommandData8(0x22, 0xd7);
+        }
+        else if (updateMode == UPDATE_FAST)
+        {
+            b_sendCommandData8(0x3c, 0xc0);
+            b_sendCommandData8(0x22, 0xdf);
+        }
     }
     else
     {
-        b_sendIndexData(0x00, index00_work, 2); // PSR
-    }
+        // Work settings
+        uint8_t indexE0_work[1]; // Activate temperature
+        uint8_t indexE5_work[1]; // Temperature
+        uint8_t index00_work[2]; // PSR
 
-    // Specific settings for fast update, all screens
-    if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL))
-    {
-        uint8_t index50c_work[1]; // Vcom
-        index50c_work[0] = index50c_data[0]; // 0x07
-        b_sendIndexData(0x50, index50c_work, 1); // Vcom and data interval setting
-    }
+        indexE0_work[0] = indexE0_data[0];
+        indexE5_data[0] = u_temperature;
+        if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL)) // Specific settings for fast update
+        {
+            indexE5_work[0] = indexE5_data[0] | 0x40; // temperature | 0x40
+            index00_work[0] = index00_data[0] | 0x10; // PSR0 | 0x10
+            index00_work[1] = index00_data[1] | 0x02; // PSR1 | 0x02
+        }
+        else // Common settings
+        {
+            indexE5_work[0] = indexE5_data[0]; // Temperature
+            index00_work[0] = index00_data[0]; // PSR0
+            index00_work[1] = index00_data[1]; // PSR1
+        } // u_codeExtra updateMode
 
-    // Additional settings for fast update, 154 213 266 and 370 screens (_flag50)
-    if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
-    {
-        uint8_t index50a_work[1]; // Vcom
-        index50a_work[0] = index50a_data[0]; // 0x27
-        b_sendIndexData(0x50, index50a_work, 1); // Vcom and data interval setting
+        // New algorithm
+        uint8_t index00_reset[] = {0x0e};
+        b_sendIndexData(0x00, index00_reset, 1); // Soft-reset
+        b_waitBusy();
+
+        b_sendIndexData(0xe5, indexE5_work, 1); // Input Temperature
+        b_sendIndexData(0xe0, indexE0_work, 1); // Activate Temperature
+
+        if (u_codeSize == 0x29) // No PSR
+        {
+            b_sendCommandData8(0x4d, 0x55);
+            b_sendCommandData8(0xe9, 0x02);
+        }
+        else
+        {
+            b_sendIndexData(0x00, index00_work, 2); // PSR
+        }
+
+        // Specific settings for fast update, all screens
+        if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL))
+        {
+            uint8_t index50c_work[1]; // Vcom
+            index50c_work[0] = index50c_data[0]; // 0x07
+            b_sendIndexData(0x50, index50c_work, 1); // Vcom and data interval setting
+        }
+
+        // Additional settings for fast update, 154 213 266 and 370 screens (_flag50)
+        if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
+        {
+            uint8_t index50a_work[1]; // Vcom
+            index50a_work[0] = index50a_data[0]; // 0x27
+            b_sendIndexData(0x50, index50a_work, 1); // Vcom and data interval setting
+        }
     }
 }
 
 void Screen_EPD_EXT3_Fast::COG_getUserData()
 {
-    uint16_t u_codeSizeType = u_eScreen_EPD_EXT3 & 0xffff;
-
-    // Size cSize cType Driver
-    switch (u_codeSizeType)
+    if (_flag152 == true)
     {
-        case 0x150C: // 1.54” = 0xcf, 0x02
-        case 0x210E: // 2.13” = 0xcf, 0x02
-        case 0x260C: // 2.66” = 0xcf, 0x02
+        // Empty
+                _flag50 = false;
+    }
+    else
+    {
+        uint16_t u_codeSizeType = u_eScreen_EPD_EXT3 & 0xffff;
 
-            index00_data[0] = 0xcf;
-            index00_data[1] = 0x02;
-            _flag50 = true;
-            break;
+        // Size cSize cType Driver
+        switch (u_codeSizeType)
+        {
+            case 0x150C: // 1.54” = 0xcf, 0x02
+            case 0x210E: // 2.13” = 0xcf, 0x02
+            case 0x260C: // 2.66” = 0xcf, 0x02
 
-        case 0x200E: // 2.06” = 0xcf, 0x02
+                index00_data[0] = 0xcf;
+                index00_data[1] = 0x02;
+                _flag50 = true;
+                break;
 
-            index00_data[0] = 0xcf;
-            index00_data[1] = 0x02;
-            _flag50 = true;
-            break;
+            case 0x200E: // 2.06” = 0xcf, 0x02
 
-        case 0x2709: // 2.71” = 0xcf, 0x8d
+                index00_data[0] = 0xcf;
+                index00_data[1] = 0x02;
+                _flag50 = true;
+                break;
 
-            index00_data[0] = 0xcf;
-            index00_data[1] = 0x8d;
-            _flag50 = false;
-            break;
+            case 0x2709: // 2.71” = 0xcf, 0x8d
 
-        case 0x2809: // 2.87” = 0xcf, 0x8d
+                index00_data[0] = 0xcf;
+                index00_data[1] = 0x8d;
+                _flag50 = false;
+                break;
 
-            index00_data[0] = 0xcf;
-            index00_data[1] = 0x8d;
-            _flag50 = false;
-            break;
+            case 0x2809: // 2.87” = 0xcf, 0x8d
 
-        case 0x290F: // 2.90” - No PSR
+                index00_data[0] = 0xcf;
+                index00_data[1] = 0x8d;
+                _flag50 = false;
+                break;
 
-            index00_data[0] = 0x00;
-            index00_data[1] = 0x00;
-            _flag50 = false;
-            break;
+            case 0x290F: // 2.90” - No PSR
 
-        case 0x370C: // 3.70” = 0xcf, 0x0f
+                index00_data[0] = 0x00;
+                index00_data[1] = 0x00;
+                _flag50 = false;
+                break;
 
-            index00_data[0] = 0xcf;
-            index00_data[1] = 0x8f;
-            _flag50 = true;
-            break;
+            case 0x370C: // 3.70” = 0xcf, 0x0f
 
-        case 0x410D:// 4.17” = 0x0f, 0x0e
+                index00_data[0] = 0xcf;
+                index00_data[1] = 0x8f;
+                _flag50 = true;
+                break;
 
-            index00_data[0] = 0x0f;
-            index00_data[1] = 0x0e;
-            _flag50 = false;
-            break;
+            case 0x410D:// 4.17” = 0x0f, 0x0e
 
-        case 0x430C: // 4.37” = 0x0f, 0x0e
+                index00_data[0] = 0x0f;
+                index00_data[1] = 0x0e;
+                _flag50 = false;
+                break;
 
-            index00_data[0] = 0x0f;
-            index00_data[1] = 0x0e;
-            _flag50 = true;
-            break;
+            case 0x430C: // 4.37” = 0x0f, 0x0e
 
-        case 0x580B: // 5.81"
+                index00_data[0] = 0x0f;
+                index00_data[1] = 0x0e;
+                _flag50 = true;
+                break;
 
-            _flag50 = false;
-            break;
+            case 0x580B: // 5.81"
 
-        default:
+                _flag50 = false;
+                break;
 
-            break;
+            default:
+
+                _flag50 = false;
+                break;
+        }
     }
 }
 
@@ -210,35 +243,60 @@ void Screen_EPD_EXT3_Fast::COG_sendImageDataFast()
     uint8_t * nextBuffer = u_newImage;
     uint8_t * previousBuffer = u_newImage + u_pageColourSize;
 
-    b_sendIndexData(0x10, previousBuffer, u_frameSize); // Previous frame
-    b_sendIndexData(0x13, nextBuffer, u_frameSize); // Next frame
+    if (_flag152 == true)
+    {
+        b_sendIndexData(0x24, previousBuffer, u_frameSize); // Previous frame
+        b_sendIndexData(0x26, nextBuffer, u_frameSize); // Next frame
+    }
+    else
+    {
+        b_sendIndexData(0x10, previousBuffer, u_frameSize); // Previous frame
+        b_sendIndexData(0x13, nextBuffer, u_frameSize); // Next frame
+    }
     memcpy(previousBuffer, nextBuffer, u_frameSize); // Copy displayed next to previous
 }
 
 void Screen_EPD_EXT3_Fast::COG_update(uint8_t updateMode)
 {
-    // Specific settings for fast update, 154 213 266 and 370 screens (_flag50)
-    if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
+    if (_flag152 == true)
     {
-        uint8_t index50b_work[1]; // Vcom
-        index50b_work[0] = index50b_data[0]; // 0x07
-        b_sendIndexData(0x50, index50b_work, 1); // Vcom and data interval setting
+        b_waitBusy(LOW); // 150 specific
+        b_sendCommand8(0x20); // Display Refresh
+        digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
+        b_waitBusy(LOW); // 150 specific
     }
+    else
+    {
+        // Specific settings for fast update, 154 213 266 and 370 screens (_flag50)
+        if ((u_codeExtra & FEATURE_FAST) and (updateMode != UPDATE_GLOBAL) and _flag50)
+        {
+            uint8_t index50b_work[1]; // Vcom
+            index50b_work[0] = index50b_data[0]; // 0x07
+            b_sendIndexData(0x50, index50b_work, 1); // Vcom and data interval setting
+        }
 
-    b_sendCommand8(0x04); // Power on
-    digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
-    b_waitBusy();
+        b_sendCommand8(0x04); // Power on
+        digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
+        b_waitBusy();
 
-    b_sendCommand8(0x12); // Display Refresh
-    digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
-    b_waitBusy();
+        b_sendCommand8(0x12); // Display Refresh
+        digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
+        b_waitBusy();
+    }
 }
 
 void Screen_EPD_EXT3_Fast::COG_powerOff()
 {
-    b_sendCommand8(0x02); // Turn off DC/DC
-    digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
-    b_waitBusy();
+    if (_flag152 == true)
+    {
+        // Empty
+    }
+    else
+    {
+        b_sendCommand8(0x02); // Turn off DC/DC
+        digitalWrite(b_pin.panelCS, HIGH); // CS# = 1
+        b_waitBusy();
+    }
 }
 /// @endcond
 //
@@ -262,6 +320,8 @@ void Screen_EPD_EXT3_Fast::begin()
     u_codeType = u_eScreen_EPD_EXT3 & 0xff;
     _screenColourBits = 2; // BWR and BWRY
 
+    _flag152 = ((u_codeSize == 0x15) and (u_codeType == 0x4A));
+
     // Configure board
     switch (u_codeSize)
     {
@@ -281,9 +341,19 @@ void Screen_EPD_EXT3_Fast::begin()
     {
         case 0x15: // 1.54"
 
-            _screenSizeV = 152; // vertical = wide size
-            _screenSizeH = 152; // horizontal = small size
-            _screenDiagonal = 154;
+            if (_flag152)
+            {
+                _screenSizeV = 200; // vertical = wide size
+                _screenSizeH = 200; // horizontal = small size
+                _screenDiagonal = 152;
+
+            }
+            else
+            {
+                _screenSizeV = 152; // vertical = wide size
+                _screenSizeH = 152; // horizontal = small size
+                _screenDiagonal = 154;
+            }
             break;
 
         case 0x20: // 2.06"
@@ -516,6 +586,17 @@ void Screen_EPD_EXT3_Fast::begin()
             b_reset(5, 5, 10, 5, 5); // small
             break;
     } // u_codeSize
+
+    // Check after reset
+    if (_flag152 == true)
+    {
+        if (digitalRead(b_pin.panelBusy) == HIGH)
+        {
+            Serial.println();
+            Serial.println("* ERROR - Incorrect type for 1.50-Wide");
+            while (true);
+        }
+    }
 
     // Check type and get tables
     COG_getUserData(); // nothing sent to panel
