@@ -593,7 +593,7 @@ void Screen_EPD_EXT3_Fast::begin()
         if (digitalRead(b_pin.panelBusy) == HIGH)
         {
             Serial.println();
-            Serial.println("* ERROR - Incorrect type for 1.50-Wide");
+            Serial.println("* ERROR - Incorrect type for 1.52-Wide");
             while (true);
         }
     }
