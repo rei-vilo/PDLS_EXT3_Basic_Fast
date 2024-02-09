@@ -8,7 +8,7 @@
 /// @date 20 Mar 2023
 /// @version 607
 ///
-/// @copyright (c) Rei Vilo, 2010-2023
+/// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 ///
 /// @see ReadMe.txt for references

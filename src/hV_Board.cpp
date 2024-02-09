@@ -8,7 +8,7 @@
 //
 // Created by Rei Vilo, 16 Aug 2023
 //
-// Copyright (c) Rei Vilo, 2010-2023
+// Copyright (c) Rei Vilo, 2010-2024
 // Licence All rights reserved
 //
 

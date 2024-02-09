@@ -8,7 +8,7 @@
 //
 // Created by Rei Vilo, 28 Jun 2016
 //
-// Copyright (c) Rei Vilo, 2010-2023
+// Copyright (c) Rei Vilo, 2010-2024
 // Licence Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 //
 // Release 509: Added eScreen_EPD_EXT3_271_Fast

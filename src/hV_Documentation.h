@@ -44,7 +44,7 @@
 /// @date 21 Dec 2023
 /// @version 703
 ///
-/// @copyright &copy; Rei Vilo, 2010-2023
+/// @copyright &copy; Rei Vilo, 2010-2024
 /// @copyright All rights reserved
 ///
 /// * Basic edition: for hobbyists and for basic usage

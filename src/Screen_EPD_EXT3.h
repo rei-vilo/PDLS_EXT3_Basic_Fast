@@ -29,7 +29,7 @@
 /// @date 21 Dec 2023
 /// @version 703
 ///
-/// @copyright (c) Rei Vilo, 2010-2023
+/// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 ///
 /// The highView Library Suite is shared under the Creative Commons licence Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).

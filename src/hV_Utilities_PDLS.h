@@ -11,7 +11,7 @@
 /// @date 21 Aug 2023
 /// @version 700
 ///
-/// @copyright (c) Rei Vilo, 2010-2023
+/// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright All rights reserved
 ///
 /// * Evaluation edition: for professionals or organisations, no commercial usage

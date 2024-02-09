@@ -8,7 +8,7 @@
 /// @date 21 Jan 2024
 /// @version 704
 ///
-/// @copyright (c) Rei Vilo, 2010-2023
+/// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 ///
 /// @see ReadMe.txt for references
@@ -34,7 +34,7 @@
 
 
 // Define variables and constants
-Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_EXT3_266_0C_Fast, boardRaspberryPiPico_RP2040);
+Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_EXT3_271_09_Fast, boardRaspberryPiPico_RP2040);
 // Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_EXT3_271_09_Wide, boardRaspberryPiPico_RP2040);
 
 // Prototypes
@@ -47,6 +47,9 @@ void check(int8_t temperatureC, uint8_t expectedMode)
     const char * stringMode[] = { "NONE", "GLOBAL", "FAST", "PARTIAL" };
     myScreen.setTemperatureC(temperatureC);
     uint8_t recommendedMode = myScreen.checkTemperatureMode(expectedMode);
+    // Raspberry Pi SDK core for RP2040
+    // Serial.printf("Temperature= %+3i C - Mode: %8s -> %-8s", temperatureC, stringMode[expectedMode], stringMode[recommendedMode]);
+    // Arduino core for RP2040
     Serial.print("Temperature= ");
     Serial.print(temperatureC);
     Serial.print(" C - Mode: ");
@@ -74,7 +77,6 @@ void performTest()
 void setup()
 {
     Serial.begin(115200);
-    delay(5000);
 
     Serial.println();
     Serial.println("=== " __FILE__);
