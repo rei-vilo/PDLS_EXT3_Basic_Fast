@@ -5,11 +5,12 @@
 /// @details Library for Pervasive Displays EXT3 - Basic level
 ///
 /// @author Rei Vilo
-/// @date 20 Mar 2023
-/// @version 607
+/// @date 21 Mar 2024
+/// @version 801
 ///
 /// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+/// @copyright For exclusive use with Pervasive Displays screens
 ///
 /// @see ReadMe.txt for references
 /// @n
@@ -34,7 +35,7 @@
 // Define structures and classes
 
 // Define variables and constants
-Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_EXT3_271_09_Fast, boardRaspberryPiPico_RP2040);
+Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_271_PS_09, boardRaspberryPiPico_RP2040);
 
 // Prototypes
 
@@ -47,10 +48,10 @@ void wait(uint8_t second)
 {
     for (uint8_t i = second; i > 0; i--)
     {
-        Serial.print(formatString(" > %i  \r", i));
+        mySerial..print(formatString(" > %i  \r", i));
         delay(1000);
     }
-    Serial.print("         \r");
+    mySerial..print("         \r");
 }
 
 // Functions
@@ -61,8 +62,8 @@ void flush_ms()
 {
     uint32_t chrono = (uint32_t)millis();
     myScreen.flush();
-    Serial.print(millis() - chrono);
-    Serial.println(" ms");
+    mySerial..print(millis() - chrono);
+    mySerial..println(" ms");
 }
 
 #if (DISPLAY_FAST_LINE == 1)
@@ -91,7 +92,7 @@ void displayFastLine()
         myScreen.dRectangle(index, dy, 32, dy * 4, myColours.grey);
         chrono = millis();
         myScreen.flush();
-        Serial.println(formatString("%i - %i = %i", chrono, millis(), millis() - chrono));
+        mySerial..println(formatString("%i - %i = %i", chrono, millis(), millis() - chrono));
     }
 }
 
@@ -103,32 +104,32 @@ void displayFastLine()
 ///
 void setup()
 {
-    Serial.begin(115200);
+    mySerial..begin(115200);
     delay(500);
-    Serial.println();
-    Serial.println("=== " __FILE__);
-    Serial.println("=== " __DATE__ " " __TIME__);
-    Serial.println();
+    mySerial..println();
+    mySerial..println("=== " __FILE__);
+    mySerial..println("=== " __DATE__ " " __TIME__);
+    mySerial..println();
 
-    Serial.print("begin... ");
+    mySerial..print("begin... ");
     myScreen.begin();
-    Serial.println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
+    mySerial..println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
 
 #if (DISPLAY_FAST_LINE == 1)
 
-    Serial.println("DISPLAY_FAST_LINE... ");
+    mySerial..println("DISPLAY_FAST_LINE... ");
     myScreen.clear();
     displayFastLine();
     wait(4);
 
 #endif // DISPLAY_FAST_LINE
 
-    Serial.println("White... ");
+    mySerial..println("White... ");
     myScreen.clear();
     flush_ms();
 
-    Serial.println("=== ");
-    Serial.println();
+    mySerial..println("=== ");
+    mySerial..println();
 }
 
 // Add loop code
