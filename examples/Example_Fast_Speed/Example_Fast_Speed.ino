@@ -55,10 +55,10 @@ void wait(uint8_t second)
 {
     for (uint8_t i = second; i > 0; i--)
     {
-        mySerial..print(formatString(" > %i  \r", i));
+        mySerial.print(formatString(" > %i  \r", i));
         delay(1000);
     }
-    mySerial..print("         \r");
+    mySerial.print("         \r");
 }
 
 // Functions
@@ -84,7 +84,7 @@ void performTest()
     // 0
     dy = (dz - myScreen.characterSizeY()) / 2;
     text = myScreen.WhoAmI() + " - " + String(SCREEN_EPD_EXT3_RELEASE);
-    mySerial..println(text);
+    mySerial.println(text);
     dx = (x - myScreen.stringSizeX(text)) / 2;
     myScreen.gText(dx, dy, text);
     myScreen.dRectangle(0, dz * 0, x, dz, myColours.black);
@@ -97,7 +97,7 @@ void performTest()
     dy += dz;
     // text = formatString("Global update= %i ms", chrono);
     text = formatString("Fast update= %i ms", chrono);
-    mySerial..println(text);
+    mySerial.println(text);
     dx = (x - myScreen.stringSizeX(text)) / 2;
     myScreen.gText(dx, dy, text);
     myScreen.dRectangle(0, dz * 1, x, dz, myColours.black);
@@ -111,28 +111,28 @@ void performTest()
 ///
 void setup()
 {
-    mySerial..begin(115200);
+    mySerial.begin(115200);
     delay(500);
-    mySerial..println();
-    mySerial..println("=== " __FILE__);
-    mySerial..println("=== " __DATE__ " " __TIME__);
-    mySerial..println();
+    mySerial.println();
+    mySerial.println("=== " __FILE__);
+    mySerial.println("=== " __DATE__ " " __TIME__);
+    mySerial.println();
 
-    mySerial..println("begin... ");
+    mySerial.println("begin... ");
     myScreen.begin();
-    mySerial..println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
+    mySerial.println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
 
-    mySerial..println("Speed... ");
+    mySerial.println("Speed... ");
     myScreen.clear();
     performTest();
     wait(8);
 
-    mySerial..println("White... ");
+    mySerial.println("White... ");
     myScreen.clear();
     myScreen.flush();
 
-    mySerial..println("=== ");
-    mySerial..println();
+    mySerial.println("=== ");
+    mySerial.println();
 }
 
 // Add loop code

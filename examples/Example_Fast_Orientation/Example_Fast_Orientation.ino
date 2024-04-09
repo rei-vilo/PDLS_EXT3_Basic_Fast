@@ -48,10 +48,10 @@ void wait(uint8_t second)
 {
     for (uint8_t i = second; i > 0; i--)
     {
-        mySerial..print(formatString(" > %i  \r", i));
+        mySerial.print(formatString(" > %i  \r", i));
         delay(1000);
     }
-    mySerial..print("         \r");
+    mySerial.print("         \r");
 }
 
 // Functions
@@ -62,8 +62,8 @@ void flush_ms()
 {
     uint32_t chrono = (uint32_t)millis();
     myScreen.flush();
-    mySerial..print(millis() - chrono);
-    mySerial..println(" ms");
+    mySerial.print(millis() - chrono);
+    mySerial.println(" ms");
 }
 
 #if (DISPLAY_FAST_ORIENTATION == 1)
@@ -89,32 +89,32 @@ void displayFastOrientation()
 ///
 void setup()
 {
-    mySerial..begin(115200);
+    mySerial.begin(115200);
     delay(500);
-    mySerial..println();
-    mySerial..println("=== " __FILE__);
-    mySerial..println("=== " __DATE__ " " __TIME__);
-    mySerial..println();
+    mySerial.println();
+    mySerial.println("=== " __FILE__);
+    mySerial.println("=== " __DATE__ " " __TIME__);
+    mySerial.println();
 
-    mySerial..print("begin... ");
+    mySerial.print("begin... ");
     myScreen.begin();
-    mySerial..println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
+    mySerial.println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
 
 #if (DISPLAY_FAST_ORIENTATION == 1)
 
-    mySerial..println("DISPLAY_FAST_ORIENTATION... ");
+    mySerial.println("DISPLAY_FAST_ORIENTATION... ");
     myScreen.clear();
     displayFastOrientation();
     wait(4);
 
 #endif // DISPLAY_FAST_ORIENTATION
 
-    mySerial..println("White... ");
+    mySerial.println("White... ");
     myScreen.clear();
     flush_ms();
 
-    mySerial..println("=== ");
-    mySerial..println();
+    mySerial.println("=== ");
+    mySerial.println();
 }
 
 // Add loop code

@@ -175,7 +175,7 @@ void Screen_EPD_EXT3_Fast::COG_getDataOTP()
 
     // Application note § 3. Read OTP memory
     // Register 0x50 flag
-    // Additional settings for fast update, 154 213 266 and 370 screens (s_flag50)
+    // Additional settings for fast update, 154 206 213 266 271A 370 and 437 screens (s_flag50)
     switch (u_eScreen_EPD)
     {
         case eScreen_EPD_154_PS_0C:
@@ -211,12 +211,6 @@ void Screen_EPD_EXT3_Fast::COG_getDataOTP()
     // GPIO
     COG_reset(); // Although not mentioned, reset to ensure stable state
 
-    // Debug
-#if (DEBUG_OTP == 1)
-    uint8_t debugOTP[4096] = {0x00};
-    uint16_t debugIndex = 0;
-#endif // DEBUG_OTP
-
     // Read OTP
     uint8_t ui8 = 0;
     uint16_t offsetA5 = 0x0000;
@@ -239,11 +233,6 @@ void Screen_EPD_EXT3_Fast::COG_getDataOTP()
     ui8 = hV_HAL_SPI3_read(); // First byte to be checked
     digitalWrite(b_pin.panelCS, HIGH); // Unselect
     // hV_HAL_log(LEVEL_INFO, "ui8= 0x%02x", ui8);
-
-#if (DEBUG_OTP == 1)
-    debugOTP[debugIndex] = ui8;
-    debugIndex += 1;
-#endif // DEBUG_OTP
 
     // Check bank
     uint8_t bank = ((ui8 == 0xa5) ? 0 : 1);
@@ -327,21 +316,11 @@ void Screen_EPD_EXT3_Fast::COG_getDataOTP()
             digitalWrite(b_pin.panelCS, LOW); // Select
             ui8 = hV_HAL_SPI3_read();
             digitalWrite(b_pin.panelCS, HIGH); // Unselect
-
-#if (DEBUG_OTP == 1)
-            debugOTP[debugIndex] = ui8;
-            debugIndex += 1;
-#endif // DEBUG_OTP
         }
 
         digitalWrite(b_pin.panelCS, LOW); // Select
         ui8 = hV_HAL_SPI3_read(); // First byte to be checked
         digitalWrite(b_pin.panelCS, HIGH); // Unselect
-
-#if (DEBUG_OTP == 1)
-        debugOTP[debugIndex] = ui8;
-        debugIndex += 1;
-#endif // DEBUG_OTP
 
         if (ui8 != 0xa5)
         {
@@ -360,11 +339,6 @@ void Screen_EPD_EXT3_Fast::COG_getDataOTP()
         digitalWrite(b_pin.panelCS, LOW); // Select
         ui8 = hV_HAL_SPI3_read();
         digitalWrite(b_pin.panelCS, HIGH); // Unselect
-
-#if (DEBUG_OTP == 1)
-        debugOTP[debugIndex] = ui8;
-        debugIndex += 1;
-#endif // DEBUG_OTP
     }
 
     // Populate COG_initialData
@@ -374,20 +348,15 @@ void Screen_EPD_EXT3_Fast::COG_getDataOTP()
         ui8 = hV_HAL_SPI3_read(); // Read OTP
         COG_initialData[index] = ui8;
         digitalWrite(b_pin.panelCS, HIGH); // Unselect
-
-#if (DEBUG_OTP == 1)
-        debugOTP[debugIndex] = ui8;
-        debugIndex += 1;
-#endif // DEBUG_OTP
     }
 
     u_flagOTP = true;
 
     // Debug COG_initialData
 #if (DEBUG_OTP == 1)
-    debugIndex |= 0x0f;
-    debugIndex += 1;
-    mySerial.print(formatString("const uint8_t debugOTP[%i] =", debugIndex));
+    uint8_t debugIndex = u_readBytes;
+
+    mySerial.print(formatString("const uint8_t COG_initialData[%i] =", debugIndex));
     mySerial.println();
     mySerial.print("{");
     for (uint16_t index = 0; index < debugIndex; index += 1)
@@ -398,7 +367,7 @@ void Screen_EPD_EXT3_Fast::COG_getDataOTP()
             mySerial.print("   ");
         }
 
-        mySerial.print(formatString("0x%02x", debugOTP[index]));
+        mySerial.print(formatString("0x%02x", COG_initialData[index]));
         mySerial.print(formatString("%s ", (index + 1 < debugIndex ? "," : " "))); // no comma on last value
 
         if (((index + 1) % 8) == 0)
@@ -415,6 +384,7 @@ void Screen_EPD_EXT3_Fast::COG_getDataOTP()
 
 void Screen_EPD_EXT3_Fast::COG_sendImageDataFast()
 {
+    // Application note § 5. Input image to the EPD
     uint8_t * nextBuffer = u_newImage;
     uint8_t * previousBuffer = u_newImage + u_pageColourSize;
 
@@ -511,7 +481,7 @@ void Screen_EPD_EXT3_Fast::begin()
 
             mySerial.println();
             mySerial.println(formatString("hV * Screen %i-%cS-0%c with no fast update", u_codeSize, u_codeFilm, u_codeDriver));
-            while (true);
+            while (0x01);
             break;
     }
 
@@ -641,15 +611,16 @@ void Screen_EPD_EXT3_Fast::begin()
 
             mySerial.println();
             mySerial.println(formatString("hV * Screen %i-%cS-0%c is not supported", u_codeSize, u_codeFilm, u_codeDriver));
-            while (true);
+            while (0x01);
             break;
     } // u_codeSize
     v_screenDiagonal = u_codeSize;
 
     // Report
-    mySerial.println(formatString("= Screen %s %ix%i", WhoAmI().c_str(), screenSizeX(), screenSizeY()));
-    mySerial.println(formatString("= PDLS %s v%i.%i.%i", SCREEN_EPD_EXT3_VARIANT, SCREEN_EPD_EXT3_RELEASE / 100, (SCREEN_EPD_EXT3_RELEASE / 10) % 10, SCREEN_EPD_EXT3_RELEASE % 10));
-
+    mySerial.println(formatString("hV = Screen %s %ix%i", WhoAmI().c_str(), screenSizeX(), screenSizeY()));
+    mySerial.println(formatString("hV = Number %i-%cS-0%c", u_codeSize, u_codeFilm, u_codeDriver));
+    mySerial.println(formatString("hV = PDLS %s v%i.%i.%i", SCREEN_EPD_EXT3_VARIANT, SCREEN_EPD_EXT3_RELEASE / 100, (SCREEN_EPD_EXT3_RELEASE / 10) % 10, SCREEN_EPD_EXT3_RELEASE % 10));
+    mySerial.println();
 
     u_bufferDepth = v_screenColourBits; // 2 colours
     u_bufferSizeV = v_screenSizeV; // vertical = wide size
@@ -777,6 +748,7 @@ uint8_t Screen_EPD_EXT3_Fast::flushMode(uint8_t updateMode)
 
         default:
 
+            mySerial.println();
             mySerial.println("hV ! PDLS - UPDATE_NONE invoked");
             break;
     }

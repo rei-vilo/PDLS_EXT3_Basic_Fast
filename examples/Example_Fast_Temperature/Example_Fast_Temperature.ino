@@ -49,16 +49,16 @@ void check(int8_t temperatureC, uint8_t expectedMode)
     uint8_t recommendedMode = myScreen.checkTemperatureMode(expectedMode);
 
     // Raspberry Pi SDK core for RP2040
-    // mySerial..printf("Temperature= %+3i C - Mode: %8s -> %-8s", temperatureC, stringMode[expectedMode], stringMode[recommendedMode]);
+    // mySerial.printf("Temperature= %+3i C - Mode: %8s -> %-8s", temperatureC, stringMode[expectedMode], stringMode[recommendedMode]);
 
     // Arduino core for RP2040
-    mySerial..print("Temperature= ");
-    mySerial..print(temperatureC);
-    mySerial..print(" C - Mode: ");
-    mySerial..print(stringMode[expectedMode]);
-    mySerial..print(" -> ");
-    mySerial..print(stringMode[recommendedMode]);
-    mySerial..println();
+    mySerial.print("Temperature= ");
+    mySerial.print(temperatureC);
+    mySerial.print(" C - Mode: ");
+    mySerial.print(stringMode[expectedMode]);
+    mySerial.print(" -> ");
+    mySerial.print(stringMode[recommendedMode]);
+    mySerial.println();
 }
 
 void performTest()
@@ -78,22 +78,22 @@ void performTest()
 ///
 void setup()
 {
-    mySerial..begin(115200);
+    mySerial.begin(115200);
 
-    mySerial..println();
-    mySerial..println("=== " __FILE__);
-    mySerial..println("=== " __DATE__ " " __TIME__);
-    mySerial..println();
+    mySerial.println();
+    mySerial.println("=== " __FILE__);
+    mySerial.println("=== " __DATE__ " " __TIME__);
+    mySerial.println();
 
     // Screen
     myScreen.begin();
 
-    mySerial..println(formatString("=== %s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
+    mySerial.println(formatString("=== %s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
 
     performTest();
 
-    mySerial..println("=== ");
-    mySerial..println();
+    mySerial.println("=== ");
+    mySerial.println();
 }
 
 // Add loop code
