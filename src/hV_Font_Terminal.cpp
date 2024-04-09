@@ -21,9 +21,8 @@
 //
 
 #include "hV_Font_Terminal.h"
-//#include "hV_Utilities_Common.h"
 
-// The Arduino IDE doesn't allow to select the libraries, hence this condition.
+// The Arduino IDE does not allow to select the libraries, hence this condition.
 #if (FONT_MODE == USE_FONT_TERMINAL)
 
 // Code
