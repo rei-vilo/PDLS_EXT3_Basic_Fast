@@ -458,11 +458,11 @@ Screen_EPD_EXT3_Fast::Screen_EPD_EXT3_Fast(eScreen_EPD_t eScreen_EPD_EXT3, pins_
     u_eScreen_EPD = eScreen_EPD_EXT3;
     b_pin = board;
     u_newImage = 0; // nullptr
+    COG_initialData[0] = 0;
 }
 
 void Screen_EPD_EXT3_Fast::begin()
 {
-    u_eScreen_EPD = u_eScreen_EPD;
     u_codeSize = SCREEN_SIZE(u_eScreen_EPD);
     u_codeFilm = SCREEN_FILM(u_eScreen_EPD);
     u_codeDriver = SCREEN_DRIVER(u_eScreen_EPD);
