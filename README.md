@@ -9,7 +9,8 @@ The Pervasive Displays Library Suite is specifically designed for the [Pervasive
 The **PDLS_EXT3_Basic_Fast** provides a high-level interface to drive the e-paper screens with embedded fast update:
 
 + [EPD Extension Kit Gen 3 (EXT3 or EXT3-1)](https://www.pervasivedisplays.com/product/epd-extension-kit-gen-3-EXT3/); and 
-+ iTC [monochrome screens with embedded fast update](https://www.pervasivedisplays.com/products/?_sft_etc_itc=pu). 
++ iTC [monochrome screens with embedded fast update](https://www.pervasivedisplays.com/products/?_sft_etc_itc=pu) (film `PS`);
+* iTC [monochrome screens with embedded fast update and wide temperature](https://www.pervasivedisplays.com/products/?_sft_etc_itc=pu&_sft_temperature_range=m15c-to-p60c)  (film `KS`). 
 
 Please refer to [PDLS_EXT3_Basic_Global](https://github.com/rei-vilo/PDLS_EXT3_Basic_Global/issues) for reporting issues and contributing pull requests.
 
