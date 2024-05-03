@@ -18,11 +18,15 @@ https://user-images.githubusercontent.com/951776/132012290-8680632a-b45c-417e-a7
 
 ## Features
 
++ Fast update
 + Graphics routines
 + Text routines
-+ Fast update
 + Four extended fonts
+
+## Documentation and support
+
 + Go to the [documentation](https://rei-vilo.github.io/PDLS_EXT3_Basic_Documentation/index.html) 
+° For support, please refer to [PDLS_EXT3_Basic_Global](https://github.com/rei-vilo/PDLS_EXT3_Basic_Global/issues) for reporting issues and contributing pull requests.
 
 ## Installation
 
