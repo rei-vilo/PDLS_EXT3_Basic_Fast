@@ -26,8 +26,8 @@
 /// * 4.37 reference xE2437PS0Cx
 ///
 /// @author Rei Vilo
-/// @date 21 May 2024
-/// @version 803
+/// @date 21 Jul 2024
+/// @version 804
 ///
 /// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright All rights reserved
@@ -89,7 +89,7 @@
 ///
 /// @brief Library release number
 ///
-#define SCREEN_EPD_EXT3_RELEASE 803
+#define SCREEN_EPD_EXT3_RELEASE 804
 
 ///
 /// @brief Library variant
@@ -136,9 +136,11 @@ class Screen_EPD_EXT3_Fast final : public hV_Screen_Buffer, public hV_Utilities_
 
     ///
     /// @brief Suspend
-    /// @details Turn SPI off and set all GPIOs low
+    /// @param suspendScope default = SCOPE_GPIO_ONLY, otherwise SCOPE_NONE
+    /// @details Power off and set all GPIOs low
+    /// @note If panelPower is NOT_CONNECTED, SCOPE_GPIO_ONLY defaults to SCOPE_NONE
     ///
-    void suspend();
+    void suspend(uint8_t suspendScope = SCOPE_GPIO_ONLY);
 
     ///
     /// @brief Resume after suspend()
