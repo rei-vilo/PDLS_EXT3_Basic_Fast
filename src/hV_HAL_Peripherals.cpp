@@ -23,6 +23,7 @@
 // Release 801: Added SPI configuration
 // Release 803: Improved stability
 // Release 804: Improved power management
+// Release 805: Improved stability
 //
 
 // Library header
@@ -237,7 +238,7 @@ void hV_HAL_SPI3_begin()
 #if defined(ARDUINO_XIAO_ESP32C3)
 
     // Board Xiao ESP32-C3 crashes if pins are not specified.
-    hV_HAL_SPI3_define(8, 9) // SCK SDA
+    hV_HAL_SPI3_define(8, 9); // SCK SDA
 
 #elif defined(ARDUINO_ESP32_PICO)
 

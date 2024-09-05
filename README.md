@@ -21,11 +21,14 @@ https://user-images.githubusercontent.com/951776/132012290-8680632a-b45c-417e-a7
 + Fast update
 + Graphics routines
 + Text routines
-+ Four extended fonts
++ Four extended fonts with double-sized variants
 
 ## Documentation and support
 
-+ Go to the [documentation](https://rei-vilo.github.io/PDLS_EXT3_Basic_Documentation/index.html) 
++ [Wiki](https://docs.pervasivedisplays.com/) 
++ [User guide](https://pdls.pervasivedisplays.com/userguide/index.html) with commented examples
++ [Reference manual](https://rei-vilo.github.io/PDLS_EXT3_Basic_Documentation/index.html) 
+
 + For support, please refer to [PDLS_EXT3_Basic_Global](https://github.com/rei-vilo/PDLS_EXT3_Basic_Global/issues) for reporting issues and contributing pull requests.
 
 ## Installation
@@ -35,7 +38,7 @@ Software
 + [Installing Additional Arduino Libraries](https://www.arduino.cc/en/guide/libraries)
 
     + Using the Library Manager
-    + Importing a .zip Library
+    + Importing a `.zip` Library
 
 Hardware
 

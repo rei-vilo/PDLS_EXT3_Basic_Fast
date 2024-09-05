@@ -36,6 +36,7 @@
 // Release 802: Refactored CoG functions
 // Release 803: Added types for string and frame-buffer
 // Release 804: Improved power management
+// Release 805: Improved stability
 //
 
 // Library header
@@ -1105,7 +1106,7 @@ void Screen_EPD_EXT3_Fast::begin()
 
     setTemperatureC(25); // 25 Celsius = 77 Fahrenheit
     b_fsmPowerScreen = FSM_OFF;
-    setPowerProfile(MODE_MANUAL, SCOPE_GPIO_ONLY);
+    setPowerProfile(POWER_MODE_MANUAL, POWER_SCOPE_GPIO_ONLY);
 
     // Turn SPI on, initialise GPIOs and set GPIO levels
     // Reset panel and get tables
@@ -1278,7 +1279,7 @@ void Screen_EPD_EXT3_Fast::s_flush(uint8_t updateMode)
     }
 
     // Suspend
-    if (u_suspendMode == MODE_AUTO)
+    if (u_suspendMode == POWER_MODE_AUTO)
     {
         suspend(u_suspendScope);
     }
