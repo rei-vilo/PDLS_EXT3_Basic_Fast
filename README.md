@@ -10,16 +10,16 @@ The Pervasive Displays Library Suite is specifically designed for the [Pervasive
 
 The **PDLS_EXT3_Basic_Fast** supports the screens
 
-+ iTC [monochrome screens with embedded fast update](https://www.pervasivedisplays.com/products/?_sft_etc_itc=pu) (film `PS`);
+* iTC [monochrome screens with embedded fast update](https://www.pervasivedisplays.com/products/?_sft_etc_itc=pu) (film `PS`);
 * iTC [monochrome screens with embedded fast update and wide temperature](https://www.pervasivedisplays.com/products/?_sft_etc_itc=pu&_sft_temperature_range=m15c-to-p60c)  (film `KS`). 
 
 the boards
 
-+ [EPD Extension Kit Gen 3 (EXT3 or EXT3-1)](https://www.pervasivedisplays.com/product/epd-extension-kit-gen-3-EXT3/); 
+* [EPD Extension Kit Gen 3 (EXT3 or EXT3-1)](https://www.pervasivedisplays.com/product/epd-extension-kit-gen-3-EXT3/); 
 
 the kits
 
-+ [EPD Pico Kit (EPDK)](https://www.pervasivedisplays.com/product/epd-pico-kit-epdk/), which includes a Raspberry Pi Pico RP2040, an EXT3-1 extension board and a 2.66" monochrome panel.
+* [EPD Pico Kit (EPDK)](https://www.pervasivedisplays.com/product/epd-pico-kit-epdk/), which includes a Raspberry Pi Pico RP2040, an EXT3-1 extension board and a 2.66" monochrome panel.
 
 https://user-images.githubusercontent.com/951776/132012290-8680632a-b45c-417e-a7fe-d625f7e8af26.mp4
 
@@ -27,26 +27,26 @@ https://user-images.githubusercontent.com/951776/132012290-8680632a-b45c-417e-a7
 
 The Pervasive Displays Library Suite provides a high-level interface to drive the e-paper screens.
 
-+ Fast update
-+ Graphics routines
-+ Text routines
-+ Four extended fonts with double-sized variants
+* Fast update
+* Graphics routines
+* Text routines
+* Four extended fonts with double-sized variants
 
 ## Documentation
 
-+ [Wiki](https://docs.pervasivedisplays.com/) 
-+ [User guide](https://pdls.pervasivedisplays.com/userguide/index.html) with commented examples
-+ [Reference manual](https://rei-vilo.github.io/PDLS_EXT3_Basic_Documentation/index.html) 
+* [Wiki](https://docs.pervasivedisplays.com/) 
+* [User guide](https://pdls.pervasivedisplays.com/userguide/index.html) with commented examples
+* [Reference manual](https://rei-vilo.github.io/PDLS_EXT3_Basic_Documentation/index.html) 
 
 ## Support
 
-+ Please refer to [PDLS_EXT3_Basic_Global](https://github.com/rei-vilo/PDLS_EXT3_Basic_Global/issues) for reporting issues and contributing pull requests.
+* Please refer to [PDLS_EXT3_Basic_Global](https://github.com/rei-vilo/PDLS_EXT3_Basic_Global/issues) for reporting issues and contributing pull requests.
 
 ## Installation
 
 Software
 
-+ [Installing Additional Arduino Libraries](https://www.arduino.cc/en/guide/libraries)
+* [Installing Additional Arduino Libraries](https://www.arduino.cc/en/guide/libraries)
 
     + Using the Library Manager
     + Importing a `.zip` Library
