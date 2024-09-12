@@ -19,7 +19,7 @@ the boards
 
 the kits
 
-+ the [EPD Pico Kit (EPDK)](https://www.pervasivedisplays.com/product/epd-pico-kit-epdk/), which includes a Raspberry Pi Pico RP2040, an EXT3-1 extension board and a 2.66" monochrome panel.
++ [EPD Pico Kit (EPDK)](https://www.pervasivedisplays.com/product/epd-pico-kit-epdk/), which includes a Raspberry Pi Pico RP2040, an EXT3-1 extension board and a 2.66" monochrome panel.
 
 https://user-images.githubusercontent.com/951776/132012290-8680632a-b45c-417e-a7fe-d625f7e8af26.mp4
 
