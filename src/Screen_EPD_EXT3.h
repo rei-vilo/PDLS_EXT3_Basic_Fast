@@ -1,6 +1,6 @@
 ///
 /// @file Screen_EPD_EXT3.h
-/// @brief Driver for Pervasive Displays iTC monochrome screens with embedded fast update and EXT3-1 board
+/// @brief Driver for Pervasive Displays iTC monochrome screens with embedded fast update and EXT3.1 board
 ///
 /// @details Project Pervasive Displays Library Suite
 /// @n Based on highView technology
@@ -25,9 +25,11 @@
 /// * 4.17 reference xE2417PS0Dx
 /// * 4.37 reference xE2437PS0Cx
 ///
+/// * For screens with film `K`, embedded fast update, see PDLS_EXT3_Advanced_Wide
+///
 /// @author Rei Vilo
-/// @date 21 Aug 2024
-/// @version 805
+/// @date 21 Sep 2024
+/// @version 806
 ///
 /// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright All rights reserved
@@ -89,7 +91,7 @@
 ///
 /// @brief Library release number
 ///
-#define SCREEN_EPD_EXT3_RELEASE 805
+#define SCREEN_EPD_EXT3_RELEASE 806
 
 ///
 /// @brief Library variant
@@ -233,7 +235,7 @@ class Screen_EPD_EXT3_Fast final : public hV_Screen_Buffer, public hV_Utilities_
 
     ///
     /// @brief Update the screen
-    /// @param updateMode update mode, default = UPDATE_FAST, otherwise UPDATE_GLOBAL
+    /// @param updateMode update mode, default = UPDATE_FAST
     ///
     void s_flush(uint8_t updateMode = UPDATE_FAST);
 

@@ -1,5 +1,5 @@
 ///
-/// @file Example_Fast_Orientation.ino
+/// @file Fast_Line.ino
 /// @brief Example of features for basic edition
 ///
 /// @details Library for Pervasive Displays EXT3 - Basic level
@@ -30,7 +30,7 @@
 #include "hV_Configuration.h"
 
 // Set parameters
-#define DISPLAY_FAST_ORIENTATION 1
+#define DISPLAY_FAST_LINE 1
 
 // Define structures and classes
 
@@ -66,22 +66,37 @@ void flush_ms()
     mySerial.println(" ms");
 }
 
-#if (DISPLAY_FAST_ORIENTATION == 1)
-
-void displayFastOrientation()
+#if (DISPLAY_FAST_LINE == 1)
+void displayFastLine()
 {
-    myScreen.clear();
-    myScreen.selectFont(2);
+    myScreen.setOrientation(7);
 
-    for (uint8_t i = 0; i < 4; i++)
+    uint16_t x, y, dx, dy;
+    int32_t value = 128;
+
+    x = myScreen.screenSizeX();
+    x -= (x % 32);
+    y = myScreen.screenSizeY();
+    dx = x / 5;
+    dy = y / 5;
+
+    myScreen.selectFont(myScreen.fontMax());
+    myScreen.gText(0, 0, "Line");
+
+    myScreen.flush();
+
+    myScreen.setPenSolid(true);
+    uint32_t chrono;
+    for (uint16_t index = 0; index < x; index += 32)
     {
-        myScreen.setOrientation(i);
-        myScreen.gText(4, 4, formatString("> Orientation %i", i));
-        flush_ms();
+        myScreen.dRectangle(index, dy, 32, dy * 4, myColours.grey);
+        chrono = millis();
+        myScreen.flush();
+        mySerial.println(formatString("%i - %i = %i", chrono, millis(), millis() - chrono));
     }
 }
 
-#endif // DISPLAY_FAST_ORIENTATION
+#endif // DISPLAY_FAST_LINE
 
 // Add setup code
 ///
@@ -100,14 +115,14 @@ void setup()
     myScreen.begin();
     mySerial.println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
 
-#if (DISPLAY_FAST_ORIENTATION == 1)
+#if (DISPLAY_FAST_LINE == 1)
 
-    mySerial.println("DISPLAY_FAST_ORIENTATION... ");
+    mySerial.println("DISPLAY_FAST_LINE... ");
     myScreen.clear();
-    displayFastOrientation();
+    displayFastLine();
     wait(4);
 
-#endif // DISPLAY_FAST_ORIENTATION
+#endif // DISPLAY_FAST_LINE
 
     mySerial.println("White... ");
     myScreen.clear();

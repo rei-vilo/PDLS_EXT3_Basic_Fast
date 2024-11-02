@@ -1,8 +1,9 @@
 ///
-/// @file Example_Fast_Line.ino
+/// @file Common_Text.ino
 /// @brief Example of features for basic edition
 ///
-/// @details Library for Pervasive Displays EXT3 - Basic level
+/// @details Project Pervasive Displays Library Suite
+/// @n Based on highView technology
 ///
 /// @author Rei Vilo
 /// @date 21 Mar 2024
@@ -30,12 +31,13 @@
 #include "hV_Configuration.h"
 
 // Set parameters
-#define DISPLAY_FAST_LINE 1
 
 // Define structures and classes
 
 // Define variables and constants
+
 Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_271_PS_09, boardRaspberryPiPico_RP2040);
+
 
 // Prototypes
 
@@ -56,47 +58,55 @@ void wait(uint8_t second)
 
 // Functions
 ///
-/// @brief Flush screen and display time
+/// @brief Characters test screen
+/// @param flag true = default = perform flush, otherwise no
 ///
-void flush_ms()
-{
-    uint32_t chrono = (uint32_t)millis();
-    myScreen.flush();
-    mySerial.print(millis() - chrono);
-    mySerial.println(" ms");
-}
-
-#if (DISPLAY_FAST_LINE == 1)
-void displayFastLine()
+/// @image html T2_CHARA.jpg
+/// @image latex T2_CHARA.PDF width=10cm
+///
+void displayCharacters(bool flag = true)
 {
     myScreen.setOrientation(7);
+    uint16_t x = myScreen.screenSizeX(); // 17
+    uint16_t y = myScreen.screenSizeY(); // 14
 
-    uint16_t x, y, dx, dy;
-    int32_t value = 128;
+    // #if (USE_FONT_MODE == USE_FONT_TERMINAL)
+    myScreen.selectFont(Font_Terminal8x12);
+    // #elif (USE_FONT_MODE == USE_FONT_HEADER)
+    //
+    // #elif (USE_FONT_MODE == USE_FONT_FLASH)
+    //
+    // #else
+    // #error USE_FONT_MODE not defined
+    // #endif
 
-    x = myScreen.screenSizeX();
-    x -= (x % 32);
-    y = myScreen.screenSizeY();
-    dx = x / 5;
-    dy = y / 5;
+    uint8_t k;
+    String text;
+    uint16_t dx;
 
-    myScreen.selectFont(myScreen.fontMax());
-    myScreen.gText(0, 0, "Line");
+    for (uint8_t i = 1; i < 17; i++)
+    {
+        myScreen.gText(i * x / 17, 0, formatString(".%x", (i - 1)), myColours.red);
+    }
+    for (uint8_t j = 2; j < 16; j++)
+    {
+        myScreen.gText(0, (j - 1)*y / 15, formatString("%x.", (j)), myColours.red);
+    }
+
+    for (uint16_t i = 1; i < 17; i++)
+    {
+        for (uint8_t j = 2; j < 16; j++)
+        {
+            k = (i - 1) + j * 16;
+
+            text = (String)char(k);
+            dx = i * x / 17 + (x / 17 - myScreen.stringSizeX(text)) / 2;
+            myScreen.gText(dx, (j - 1)*y / 15, text, myColours.black);
+        }
+    }
 
     myScreen.flush();
-
-    myScreen.setPenSolid(true);
-    uint32_t chrono;
-    for (uint16_t index = 0; index < x; index += 32)
-    {
-        myScreen.dRectangle(index, dy, 32, dy * 4, myColours.grey);
-        chrono = millis();
-        myScreen.flush();
-        mySerial.println(formatString("%i - %i = %i", chrono, millis(), millis() - chrono));
-    }
 }
-
-#endif // DISPLAY_FAST_LINE
 
 // Add setup code
 ///
@@ -104,6 +114,7 @@ void displayFastLine()
 ///
 void setup()
 {
+    // mySerial = Serial by default, otherwise edit hV_HAL_Peripherals.h
     mySerial.begin(115200);
     delay(500);
     mySerial.println();
@@ -111,22 +122,19 @@ void setup()
     mySerial.println("=== " __DATE__ " " __TIME__);
     mySerial.println();
 
-    mySerial.print("begin... ");
+    // Start
+    mySerial.println("begin... ");
     myScreen.begin();
     mySerial.println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
 
-#if (DISPLAY_FAST_LINE == 1)
-
-    mySerial.println("DISPLAY_FAST_LINE... ");
+    mySerial.println("Characters... ");
     myScreen.clear();
-    displayFastLine();
-    wait(4);
-
-#endif // DISPLAY_FAST_LINE
+    displayCharacters();
+    wait(8);
 
     mySerial.println("White... ");
     myScreen.clear();
-    flush_ms();
+    myScreen.flush();
 
     mySerial.println("=== ");
     mySerial.println();

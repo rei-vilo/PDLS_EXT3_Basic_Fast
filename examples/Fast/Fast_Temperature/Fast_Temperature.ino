@@ -1,5 +1,5 @@
 ///
-/// @file Example_Fast_Temperature.ino
+/// @file Fast_Temperature.ino
 /// @brief Example of features for fast edition
 ///
 /// @details Library for Pervasive Displays EXT3 - Basic level

@@ -1,6 +1,6 @@
 ///
 /// @file hV_Utilities_PDLS.h
-/// @brief Driver for Pervasive Displays EXT3, EXT3-1 and EXT3-Touch boards
+/// @brief Driver for Pervasive Displays EXT3, EXT3.1 and EXT3-Touch boards
 ///
 /// @details Project Pervasive Displays Library Suite
 /// @n Based on highView technology
@@ -8,8 +8,8 @@
 /// * Edition: Advanced
 ///
 /// @author Rei Vilo
-/// @date 21 Aug 2024
-/// @version 805
+/// @date 21 Sep 2024
+/// @version 806
 ///
 /// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright All rights reserved
@@ -63,7 +63,7 @@
 ///
 /// @brief Library release number
 ///
-#define hV_UTILITIES_PDLS_RELEASE 805
+#define hV_UTILITIES_PDLS_RELEASE 806
 
 // Objects
 //

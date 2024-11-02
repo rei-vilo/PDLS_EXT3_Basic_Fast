@@ -1,6 +1,6 @@
 ///
-/// @file Example_Fast_Speed.ino
-/// @brief Protocol for speed test
+/// @file Common_WhoAmI.ino
+/// @brief Example of features for basic edition
 ///
 /// @details Project Pervasive Displays Library Suite
 /// @n Based on highView technology
@@ -13,16 +13,11 @@
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 /// @copyright For exclusive use with Pervasive Displays screens
 ///
-/// @see ReadMe.md for references
+/// @see ReadMe.txt for references
 /// @n
-///
-/// Release 542: First release
-/// Release 604: Global and fast variants
-/// Release 702: Added xE2150KS0Jx and xE2152KS0Jx
 ///
 
 // Screen
-// #include "PDLS_EXT3_Basic_Global.h"
 #include "PDLS_EXT3_Basic_Fast.h"
 
 // SDK
@@ -36,12 +31,12 @@
 #include "hV_Configuration.h"
 
 // Set parameters
+#define DISPLAY_WHOAMI 1
 
 // Define structures and classes
 
-// Define constants and variables
-// Define constants and variables
-// Screen_EPD_EXT3 myScreen(eScreen_EPD_271_CS_09, boardRaspberryPiPico_RP2040);
+// Define variables and constants
+
 Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_271_PS_09, boardRaspberryPiPico_RP2040);
 
 // Prototypes
@@ -62,48 +57,56 @@ void wait(uint8_t second)
 }
 
 // Functions
+
+#if (DISPLAY_WHOAMI == 1)
+
 ///
-/// @brief Perform the speed test
+/// @brief Who am i? test screen
 ///
-void performTest()
+/// @image html T2_WHOAMI.jpg
+/// @image latex T2_WHOAMI.PDF width=10cm
+///
+void displayWhoAmI()
 {
-    uint32_t chrono;
-
-    myScreen.clear();
     myScreen.setOrientation(ORIENTATION_LANDSCAPE);
-
-    uint16_t x = myScreen.screenSizeX();
-    uint16_t y = myScreen.screenSizeY();
-    uint16_t dx = 0;
-    uint16_t dy = 0;
-    uint16_t dz = y / 2;
-    String text = "";
-
     myScreen.selectFont(Font_Terminal12x16);
 
-    // 0
-    dy = (dz - myScreen.characterSizeY()) / 2;
-    text = myScreen.WhoAmI() + " - " + String(SCREEN_EPD_EXT3_RELEASE);
-    mySerial.println(text);
-    dx = (x - myScreen.stringSizeX(text)) / 2;
-    myScreen.gText(dx, dy, text);
-    myScreen.dRectangle(0, dz * 0, x, dz, myColours.black);
+    uint16_t x = 4;
+    uint16_t y = 4;
+    uint16_t dy = myScreen.characterSizeY();
+    myScreen.gText(x, y, myScreen.WhoAmI());
+    y += dy;
+    myScreen.gText(x, y, formatString("Size %i x %i", myScreen.screenSizeX(), myScreen.screenSizeY()));
+    y += dy;
+    myScreen.gText(x, y, myScreen.screenNumber());
+    y += dy;
+    myScreen.gText(x, y, formatString("PDLS %s v%i.%i.%i", SCREEN_EPD_EXT3_VARIANT, SCREEN_EPD_EXT3_RELEASE / 100, (SCREEN_EPD_EXT3_RELEASE / 10) % 10, SCREEN_EPD_EXT3_RELEASE % 10));
+    y += dy;
+    myScreen.setPenSolid(true);
+    myScreen.dRectangle(x + dy * 0, y, dy - 1, dy - 1, myColours.black);
+    myScreen.setPenSolid(false);
+    myScreen.dRectangle(x + dy * 1, y, dy - 1, dy - 1, myColours.black);
+    myScreen.setPenSolid(true);
 
-    chrono = millis();
-    myScreen.flush();
-    chrono = millis() - chrono;
+    uint8_t number = myScreen.screenColours();
 
-    // 1
-    dy += dz;
-    // text = formatString("Global update= %i ms", chrono);
-    text = formatString("Fast update= %i ms", chrono);
-    mySerial.println(text);
-    dx = (x - myScreen.stringSizeX(text)) / 2;
-    myScreen.gText(dx, dy, text);
-    myScreen.dRectangle(0, dz * 1, x, dz, myColours.black);
+    if (number >= 3)
+    {
+        myScreen.dRectangle(x + dy * 2, y, dy - 1, dy - 1, myColours.red);
+
+#if defined(WITH_COLOURS_BWRY)
+        if (number == 4)
+        {
+            myScreen.dRectangle(x + dy * 3, y, dy - 1, dy - 1, myColours.yellow);
+        }
+#endif // WITH_COLOURS_BWRY
+    }
 
     myScreen.flush();
 }
+
+#endif // DISPLAY_WHOAMI
+
 
 // Add setup code
 ///
@@ -111,6 +114,7 @@ void performTest()
 ///
 void setup()
 {
+    // mySerial = Serial by default, otherwise edit hV_HAL_Peripherals.h
     mySerial.begin(115200);
     delay(500);
     mySerial.println();
@@ -118,14 +122,19 @@ void setup()
     mySerial.println("=== " __DATE__ " " __TIME__);
     mySerial.println();
 
+    // Start
     mySerial.println("begin... ");
     myScreen.begin();
     mySerial.println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
 
-    mySerial.println("Speed... ");
+#if (DISPLAY_WHOAMI == 1)
+
+    mySerial.println("Who Am I... ");
     myScreen.clear();
-    performTest();
+    displayWhoAmI();
     wait(8);
+
+#endif // DISPLAY_WHOAMI
 
     mySerial.println("White... ");
     myScreen.clear();
