@@ -36,7 +36,6 @@
 // Define structures and classes
 
 // Define variables and constants
-
 Screen_EPD_EXT3_Fast myScreen(eScreen_EPD_271_PS_09, boardRaspberryPiPico_RP2040);
 
 // Prototypes
@@ -106,7 +105,6 @@ void displayWhoAmI()
 }
 
 #endif // DISPLAY_WHOAMI
-
 
 // Add setup code
 ///

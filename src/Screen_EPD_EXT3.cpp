@@ -57,22 +57,22 @@
 //
 
 //
-// --- Medium screens with K or P film
+// --- Medium screens with P film
 //
-void Screen_EPD_EXT3_Fast::COG_MediumKP_reset()
+void Screen_EPD_EXT3_Fast::COG_MediumP_reset()
 {
     // Application note § 2. Power on COG driver
     b_reset(5, 2, 4, 20, 5); // Medium
 }
 
-void Screen_EPD_EXT3_Fast::COG_MediumKP_getDataOTP()
+void Screen_EPD_EXT3_Fast::COG_MediumP_getDataOTP()
 {
     // Read OTP
-    uint8_t ui8 = 0;
     uint16_t _readBytes = 0;
+    uint8_t ui8 = 0; // dummy
     u_flagOTP = false;
 
-    COG_MediumKP_reset();
+    COG_MediumP_reset();
     if (b_family == FAMILY_LARGE)
     {
         digitalWrite(b_pin.panelCSS, HIGH); // Unselect slave panel
@@ -101,7 +101,6 @@ void Screen_EPD_EXT3_Fast::COG_MediumKP_getDataOTP()
 
     digitalWrite(b_pin.panelDC, HIGH); // Data
     ui8 = hV_HAL_SPI3_read(); // Dummy
-    // hV_HAL_log(LEVEL_DEBUG, "Dummy read 0x%02x", ui8);
 
     // Populate COG_data
     for (uint16_t index = 0; index < _readBytes; index += 1)
@@ -149,27 +148,17 @@ void Screen_EPD_EXT3_Fast::COG_MediumKP_getDataOTP()
     }
 }
 
-void Screen_EPD_EXT3_Fast::COG_MediumKP_initial(uint8_t updateMode)
+void Screen_EPD_EXT3_Fast::COG_MediumP_initial(uint8_t updateMode)
 {
     uint8_t workDCTL[2];
     workDCTL[0] = COG_data[0x10]; // DCTL
     workDCTL[1] = 0x00;
 
-    switch (u_codeFilm)
-    {
-        case FILM_K:
-
-            b_sendIndexData(0x01, workDCTL, 1); // Wide
-            break;
-
-        default:
-
-            b_sendIndexData(0x01, workDCTL, 2); // Fast
-            break;
-    }
+    // FILM_P already checked
+    b_sendIndexData(0x01, workDCTL, 2); // Fast
 }
 
-void Screen_EPD_EXT3_Fast::COG_MediumKP_sendImageData(uint8_t updateMode)
+void Screen_EPD_EXT3_Fast::COG_MediumP_sendImageData(uint8_t updateMode)
 {
     // Application note § 3.2 Input image to the EPD
     FRAMEBUFFER_TYPE nextBuffer = s_newImage;
@@ -183,12 +172,12 @@ void Screen_EPD_EXT3_Fast::COG_MediumKP_sendImageData(uint8_t updateMode)
     b_sendIndexData(0x12, &COG_data[0x12], 3); // RAM_RW
     b_sendIndexData(0x10, nextBuffer, u_pageColourSize); // Next frame
 
+    b_sendIndexData(0x12, &COG_data[0x12], 3); // RAM_RW
     switch (updateMode)
     {
         case UPDATE_GLOBAL:
 
             // Previous frame = dummy
-            b_sendIndexData(0x12, &COG_data[0x12], 3); // RAM_RW
             b_sendIndexFixed(0x11, 0x00, u_pageColourSize); // Previous frame = dummy
 
             break;
@@ -196,11 +185,11 @@ void Screen_EPD_EXT3_Fast::COG_MediumKP_sendImageData(uint8_t updateMode)
         case UPDATE_FAST:
 
             // Previous frame
-            b_sendIndexData(0x12, &COG_data[0x12], 3); // RAM_RW
             b_sendIndexData(0x11, previousBuffer, u_pageColourSize); // Next frame
             break;
 
         default:
+
             break;
     }
 
@@ -208,7 +197,7 @@ void Screen_EPD_EXT3_Fast::COG_MediumKP_sendImageData(uint8_t updateMode)
     memcpy(previousBuffer, nextBuffer, u_pageColourSize); // Copy displayed next to previous
 }
 
-void Screen_EPD_EXT3_Fast::COG_MediumKP_update(uint8_t updateMode)
+void Screen_EPD_EXT3_Fast::COG_MediumP_update(uint8_t updateMode)
 {
     // Initial COG
     // Application note § 3.1 Initial flow chart
@@ -258,9 +247,7 @@ void Screen_EPD_EXT3_Fast::COG_MediumKP_update(uint8_t updateMode)
             }
 
         case eScreen_EPD_581_PS_0B:
-        case eScreen_EPD_581_KS_0B:
         case eScreen_EPD_741_PS_0B:
-        case eScreen_EPD_741_KS_0B:
 
             switch (updateMode)
             {
@@ -303,17 +290,7 @@ void Screen_EPD_EXT3_Fast::COG_MediumKP_update(uint8_t updateMode)
     b_sendCommandData8(0x61, COG_data[0x1b]); // STV_DIR
     // No DCTL here
     b_sendCommandData8(0x02, COG_data[0x11]); // VCOM
-    switch (u_codeFilm)
-    {
-        case FILM_K:
-
-            b_sendCommandData8(0x03, COG_data[0x1f]); // VCOM_CTRL
-            break;
-
-        default:
-
-            break;
-    }
+    // Fast: no VCOM_CTRL here for Fast
 
     // DC/DC Soft-start
     // Application note § 3.3 DC/DC soft-start
@@ -415,67 +392,39 @@ void Screen_EPD_EXT3_Fast::COG_MediumKP_update(uint8_t updateMode)
     b_sendCommandData8(0x15, 0x3c);
 }
 
-void Screen_EPD_EXT3_Fast::COG_MediumKP_powerOff()
+void Screen_EPD_EXT3_Fast::COG_MediumP_powerOff()
 {
     // Application note § 5. Turn-off DC/DC
 
     // DC-DC off
     b_waitBusy();
 
-    switch (u_codeFilm)
-    {
-        case FILM_P:
+    // FILM_P already checked
+    b_sendCommandData8(0x09, 0x7b);
+    b_sendCommandData8(0x05, 0x5d);
+    b_sendCommandData8(0x09, 0x7a);
+    hV_HAL_delayMilliseconds(15);
+    b_sendCommandData8(0x09, 0x00);
 
-            b_sendCommandData8(0x09, 0x7b);
-            b_sendCommandData8(0x05, 0x5d);
-            b_sendCommandData8(0x09, 0x7a);
-            delay(15);
-            b_sendCommandData8(0x09, 0x00);
-            break;
-
-        default:
-
-            b_sendCommandData8(0x09, 0x7f);
-            b_sendCommandData8(0x05, 0x3d);
-            b_sendCommandData8(0x09, 0x7e);
-            delay(60);
-            b_sendCommandData8(0x09, 0x00);
-            break;
-    }
+    b_waitBusy(HIGH); // added
 }
 //
-// --- End of Medium screens with K or P film
+// --- End of Medium screens with P film
 //
 
 //
-// --- Small screens with K or P film
+// --- Small screens with P film
 //
-void Screen_EPD_EXT3_Fast::COG_SmallKP_reset()
+void Screen_EPD_EXT3_Fast::COG_SmallP_reset()
 {
     // Application note § 2. Power on COG driver
     b_reset(5, 5, 10, 5, 5); // Small
 
     // Check after reset
-    switch (u_eScreen_EPD)
-    {
-        case eScreen_EPD_150_KS_0J:
-        case eScreen_EPD_152_KS_0J:
-
-            if (digitalRead(b_pin.panelBusy) == HIGH)
-            {
-                mySerial.println();
-                mySerial.println("hV * Incorrect type for 1.52-Wide");
-                while (0x01);
-            }
-            break;
-
-        default:
-
-            break;
-    }
+    // No check
 }
 
-void Screen_EPD_EXT3_Fast::COG_SmallKP_getDataOTP()
+void Screen_EPD_EXT3_Fast::COG_SmallP_getDataOTP()
 {
     // Read OTP
     uint8_t ui8 = 0;
@@ -528,7 +477,7 @@ void Screen_EPD_EXT3_Fast::COG_SmallKP_getDataOTP()
     }
 
     // GPIO
-    COG_SmallKP_reset(); // Although not mentioned, reset to ensure stable state
+    // COG_SmallP_reset(); // Although not mentioned, reset to ensure stable state
 
     // Read OTP
     _readBytes = 2;
@@ -682,7 +631,7 @@ void Screen_EPD_EXT3_Fast::COG_SmallKP_getDataOTP()
     u_flagOTP = true;
 }
 
-void Screen_EPD_EXT3_Fast::COG_SmallKP_initial(uint8_t updateMode)
+void Screen_EPD_EXT3_Fast::COG_SmallP_initial(uint8_t updateMode)
 {
     // Application note § 4. Input initial command
     switch (u_eScreen_EPD)
@@ -715,7 +664,7 @@ void Screen_EPD_EXT3_Fast::COG_SmallKP_initial(uint8_t updateMode)
             uint8_t indexTemperature; // Temperature
             uint8_t index00_work[2]; // PSR
 
-            // FILM_P and FILM_K already checked
+            // FILM_P already checked
             if (updateMode != UPDATE_GLOBAL) // Specific settings for fast update
             {
                 indexTemperature = u_temperature | 0x40; // temperature | 0x40
@@ -747,7 +696,7 @@ void Screen_EPD_EXT3_Fast::COG_SmallKP_initial(uint8_t updateMode)
             }
 
             // Specific settings for fast update, all screens
-            // FILM_P and FILM_K already checked
+            // FILM_P already checked
             if (updateMode != UPDATE_GLOBAL)
             {
                 b_sendCommandData8(0x50, 0x07); // Vcom and data interval setting
@@ -756,46 +705,33 @@ void Screen_EPD_EXT3_Fast::COG_SmallKP_initial(uint8_t updateMode)
     }
 }
 
-void Screen_EPD_EXT3_Fast::COG_SmallKP_sendImageData(uint8_t updateMode)
+void Screen_EPD_EXT3_Fast::COG_SmallP_sendImageData(uint8_t updateMode)
 {
     // Application note § 5. Input image to the EPD
     FRAMEBUFFER_TYPE nextBuffer = s_newImage;
     FRAMEBUFFER_TYPE previousBuffer = s_newImage + u_pageColourSize;
 
     // Send image data
-    switch (u_eScreen_EPD)
+    // Additional settings for fast update, 154 213 266 370 and 437 screens (s_flag50)
+    if (s_flag50)
     {
-        case eScreen_EPD_150_KS_0J:
-        case eScreen_EPD_152_KS_0J:
+        b_sendCommandData8(0x50, 0x27); // Vcom and data interval setting
+    }
 
-            b_sendIndexData(0x24, previousBuffer, u_pageColourSize); // Previous frame, blackBuffer
-            b_sendIndexData(0x26, nextBuffer, u_pageColourSize); // Next frame
-            break;
+    b_sendIndexData(0x10, previousBuffer, u_pageColourSize); // First frame, blackBuffer
+    b_sendIndexData(0x13, nextBuffer, u_pageColourSize); // Second frame, 0x00
 
-        default:
-
-            // Additional settings for fast update, 154 213 266 370 and 437 screens (s_flag50)
-            if (s_flag50)
-            {
-                b_sendCommandData8(0x50, 0x27); // Vcom and data interval setting
-            }
-
-            b_sendIndexData(0x10, previousBuffer, u_pageColourSize); // Previous frame, blackBuffer
-            b_sendIndexData(0x13, nextBuffer, u_pageColourSize); // Next frame
-
-            // Additional settings for fast update, 154 213 266 370 and 437 screens (s_flag50)
-            if (s_flag50)
-            {
-                b_sendCommandData8(0x50, 0x07); // Vcom and data interval setting
-            }
-            break;
-    } // u_eScreen_EPD
+    // Additional settings for fast update, 154 213 266 370 and 437 screens (s_flag50)
+    if (s_flag50)
+    {
+        b_sendCommandData8(0x50, 0x07); // Vcom and data interval setting
+    }
 
     // Copy next frame to previous frame
     memcpy(previousBuffer, nextBuffer, u_pageColourSize); // Copy displayed next to previous
 }
 
-void Screen_EPD_EXT3_Fast::COG_SmallKP_update(uint8_t updateMode)
+void Screen_EPD_EXT3_Fast::COG_SmallP_update(uint8_t updateMode)
 {
     // Application note § 6. Send updating command
     switch (u_eScreen_EPD)
@@ -822,7 +758,7 @@ void Screen_EPD_EXT3_Fast::COG_SmallKP_update(uint8_t updateMode)
     }
 }
 
-void Screen_EPD_EXT3_Fast::COG_SmallKP_powerOff()
+void Screen_EPD_EXT3_Fast::COG_SmallP_powerOff()
 {
     // Application note § 7. Turn-off DC/DC
     switch (u_eScreen_EPD)
@@ -840,7 +776,7 @@ void Screen_EPD_EXT3_Fast::COG_SmallKP_powerOff()
     }
 }
 //
-// --- End of Small screens with K or P film
+// --- End of Small screens with P film
 //
 /// @endcond
 //
@@ -871,7 +807,6 @@ void Screen_EPD_EXT3_Fast::begin()
     switch (u_codeFilm)
     {
         case FILM_P: // BW, fast update
-        case FILM_K: // BW, fast update and wide temperature
 
             break;
 
@@ -1171,21 +1106,7 @@ void Screen_EPD_EXT3_Fast::resume()
         }
 
         // Start SPI, with unicity check
-        switch (u_eScreen_EPD)
-        {
-            case eScreen_EPD_150_KS_0J:
-            case eScreen_EPD_152_KS_0J: // 1.52" tested with 4, 8, 16 and 32 MHz
-            case eScreen_EPD_206_KS_0E: // 2.06" tested with 4, 8 and 16 MHz
-            case eScreen_EPD_290_KS_0F:
-
-                hV_HAL_SPI_begin(16000000);
-                break;
-
-            default:
-
-                hV_HAL_SPI_begin(); // Standard 8 MHz
-                break;
-        }
+        hV_HAL_SPI_begin(); // Standard 8 MHz
     }
 }
 
@@ -1195,12 +1116,12 @@ void Screen_EPD_EXT3_Fast::s_reset()
     {
         case FAMILY_MEDIUM:
 
-            COG_MediumKP_reset();
+            COG_MediumP_reset();
             break;
 
         case FAMILY_SMALL:
 
-            COG_SmallKP_reset();
+            COG_SmallP_reset();
             break;
 
         default:
@@ -1220,12 +1141,12 @@ void Screen_EPD_EXT3_Fast::s_getDataOTP()
     {
         case FAMILY_MEDIUM:
 
-            COG_MediumKP_getDataOTP();
+            COG_MediumP_getDataOTP();
             break;
 
         case FAMILY_SMALL:
 
-            COG_SmallKP_getDataOTP();
+            COG_SmallP_getDataOTP();
             break;
 
         default:
@@ -1246,18 +1167,18 @@ void Screen_EPD_EXT3_Fast::s_flush(uint8_t updateMode)
     {
         case FAMILY_MEDIUM:
 
-            COG_MediumKP_initial(updateMode); // Initialise
-            COG_MediumKP_sendImageData(updateMode); // Send image data
-            COG_MediumKP_update(updateMode); // Update
-            COG_MediumKP_powerOff(); // Power off
+            COG_MediumP_initial(updateMode); // Initialise
+            COG_MediumP_sendImageData(updateMode); // Send image data
+            COG_MediumP_update(updateMode); // Update
+            COG_MediumP_powerOff(); // Power off
             break;
 
         case FAMILY_SMALL:
 
-            COG_SmallKP_initial(updateMode); // Initialise
-            COG_SmallKP_sendImageData(updateMode); // Send image data
-            COG_SmallKP_update(updateMode); // Update
-            COG_SmallKP_powerOff(); // Power off
+            COG_SmallP_initial(updateMode); // Initialise
+            COG_SmallP_sendImageData(updateMode); // Send image data
+            COG_SmallP_update(updateMode); // Update
+            COG_SmallP_powerOff(); // Power off
             break;
 
         default:

@@ -1,6 +1,6 @@
 ///
 /// @file Screen_EPD_EXT3.h
-/// @brief Driver for Pervasive Displays iTC monochrome screens with embedded fast update and EXT3.1 board
+/// @brief Driver for Pervasive Displays iTC monochrome screens with embedded fast update, and EXT3 or EXT3.1 board
 ///
 /// @details Project Pervasive Displays Library Suite
 /// @n Based on highView technology
@@ -12,24 +12,22 @@
 /// * Feature: none
 ///
 /// @n Supported screens with embedded fast update
-/// * 1.50 reference xE2150PS0Jx
-/// * 1.52 reference xE2152PS0Jx
-/// * 1.54 reference xE2154PS0Cx
-/// * 2.06 reference xE2206KS0Ex
-/// * 2.13 reference xE2213PS0Ex
-/// * 2.66 reference xE2266PS0Cx
-/// * 2.71 reference xE2271PS09x
-/// * 2.87 reference xE2287PS09x
-/// * 2.90 reference xE2290KSxxx
-/// * 3.70 reference xE2370PS0Cx
-/// * 4.17 reference xE2417PS0Dx
-/// * 4.37 reference xE2437PS0Cx
+/// * 1.50 reference 150_PS_0J
+/// * 1.52 reference 152_PS_0J
+/// * 1.54 reference 154_PS_0C
+/// * 2.13 reference 213_PS_0E
+/// * 2.66 reference 266_PS_0C
+/// * 2.71 reference 271_PS_09
+/// * 2.87 reference 287_PS_09
+/// * 3.70 reference 370_PS_0C
+/// * 4.17 reference 417_PS_0D
+/// * 4.37 reference 437_PS_0C
 ///
-/// * For screens with film `K`, embedded fast update, see PDLS_EXT3_Advanced_Wide
+/// * For screens with film `KS`, embedded fast update, see PDLS_EXT3_Advanced_Wide
 ///
 /// @author Rei Vilo
-/// @date 21 Sep 2024
-/// @version 806
+/// @date 21 Oct 2024
+/// @version 807
 ///
 /// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright All rights reserved
@@ -91,7 +89,7 @@
 ///
 /// @brief Library release number
 ///
-#define SCREEN_EPD_EXT3_RELEASE 806
+#define SCREEN_EPD_EXT3_RELEASE 807
 
 ///
 /// @brief Library variant
@@ -267,19 +265,19 @@ class Screen_EPD_EXT3_Fast final : public hV_Screen_Buffer, public hV_Utilities_
     // * Other functions specific to the screen
     uint8_t COG_data[128]; // OTP
 
-    void COG_MediumKP_reset();
-    void COG_MediumKP_getDataOTP();
-    void COG_MediumKP_initial(uint8_t updateMode);
-    void COG_MediumKP_sendImageData(uint8_t updateMode);
-    void COG_MediumKP_update(uint8_t updateMode);
-    void COG_MediumKP_powerOff();
+    void COG_MediumP_reset();
+    void COG_MediumP_getDataOTP();
+    void COG_MediumP_initial(uint8_t updateMode);
+    void COG_MediumP_sendImageData(uint8_t updateMode);
+    void COG_MediumP_update(uint8_t updateMode);
+    void COG_MediumP_powerOff();
 
-    void COG_SmallKP_reset();
-    void COG_SmallKP_getDataOTP();
-    void COG_SmallKP_initial(uint8_t updateMode);
-    void COG_SmallKP_sendImageData(uint8_t updateMode);
-    void COG_SmallKP_update(uint8_t updateMode);
-    void COG_SmallKP_powerOff();
+    void COG_SmallP_reset();
+    void COG_SmallP_getDataOTP();
+    void COG_SmallP_initial(uint8_t updateMode);
+    void COG_SmallP_sendImageData(uint8_t updateMode);
+    void COG_SmallP_update(uint8_t updateMode);
+    void COG_SmallP_powerOff();
 
     bool s_flag50; // Register 0x50
 
