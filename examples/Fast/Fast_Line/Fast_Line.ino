@@ -85,11 +85,11 @@ void displayFastLine()
 
     myScreen.flush();
 
-    myScreen.setPenSolid(true);
+    // myScreen.setPenSolid(true);
     uint32_t chrono;
     for (uint16_t index = 0; index < x; index += 32)
     {
-        myScreen.dRectangle(index, dy, 32, dy * 4, myColours.grey);
+        myScreen.dLine(index, dy, 32, dy * 4, myColours.black);
         chrono = millis();
         myScreen.flush();
         mySerial.println(formatString("%i - %i = %i", chrono, millis(), millis() - chrono));

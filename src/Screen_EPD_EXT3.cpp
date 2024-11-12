@@ -38,6 +38,7 @@
 // Release 804: Improved power management
 // Release 805: Improved stability
 // Release 806: New library for Wide temperature only
+// Release 808: Improved stability
 //
 
 // Library header
@@ -123,11 +124,11 @@ void Screen_EPD_EXT3_Fast::COG_MediumP_getDataOTP()
             u_flagOTP = (COG_data[0x00] == _chipId);
             break;
 
-        case eScreen_EPD_581_KS_0B:
-
-            _chipId = 0x16;
-            u_flagOTP = (COG_data[0x00] == _chipId);
-            break;
+        //         case eScreen_EPD_581_KS_0B:
+        //
+        //             _chipId = 0x16;
+        //             u_flagOTP = (COG_data[0x00] == _chipId);
+        //             break;
 
         default:
 
@@ -247,7 +248,7 @@ void Screen_EPD_EXT3_Fast::COG_MediumP_update(uint8_t updateMode)
             }
 
         case eScreen_EPD_581_PS_0B:
-        case eScreen_EPD_741_PS_0B:
+            // case eScreen_EPD_741_PS_0B:
 
             switch (updateMode)
             {
@@ -403,7 +404,7 @@ void Screen_EPD_EXT3_Fast::COG_MediumP_powerOff()
     b_sendCommandData8(0x09, 0x7b);
     b_sendCommandData8(0x05, 0x5d);
     b_sendCommandData8(0x09, 0x7a);
-    hV_HAL_delayMilliseconds(15);
+    delay(15);
     b_sendCommandData8(0x09, 0x00);
 
     b_waitBusy(HIGH); // added

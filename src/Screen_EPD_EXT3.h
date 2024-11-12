@@ -23,11 +23,11 @@
 /// * 4.17 reference 417_PS_0D
 /// * 4.37 reference 437_PS_0C
 ///
-/// * For screens with film `KS`, embedded fast update, see PDLS_EXT3_Advanced_Wide
+/// * For screens with film `K`, embedded fast update, see PDLS_EXT3_Advanced_Wide
 ///
 /// @author Rei Vilo
-/// @date 21 Oct 2024
-/// @version 807
+/// @date 12 Nov 2024
+/// @version 808
 ///
 /// @copyright (c) Rei Vilo, 2010-2024
 /// @copyright All rights reserved
