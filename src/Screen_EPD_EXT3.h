@@ -89,7 +89,7 @@
 ///
 /// @brief Library release number
 ///
-#define SCREEN_EPD_EXT3_RELEASE 807
+#define SCREEN_EPD_EXT3_RELEASE 808
 
 ///
 /// @brief Library variant
