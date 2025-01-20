@@ -5,10 +5,10 @@
 /// @details Library for Pervasive Displays EXT3 - Basic level
 ///
 /// @author Rei Vilo
-/// @date 21 Nov 2024
-/// @version 810
+/// @date 21 Jan 2025
+/// @version 812
 ///
-/// @copyright (c) Rei Vilo, 2010-2024
+/// @copyright (c) Rei Vilo, 2010-2025
 /// @copyright Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 /// @copyright For exclusive use with Pervasive Displays screens
 ///
@@ -90,6 +90,7 @@ void displayFastLine()
     for (uint16_t index = 0; index < x; index += 32)
     {
         myScreen.dLine(index, dy, 32, dy * 4, myColours.black);
+
         chrono = millis();
         myScreen.flush();
         mySerial.println(formatString("%i - %i = %i", chrono, millis(), millis() - chrono));
@@ -111,22 +112,22 @@ void setup()
     mySerial.println("=== " __DATE__ " " __TIME__);
     mySerial.println();
 
-    mySerial.print("begin... ");
+    // Start
+    mySerial.println("begin");
     myScreen.begin();
     mySerial.println(formatString("%s %ix%i", myScreen.WhoAmI().c_str(), myScreen.screenSizeX(), myScreen.screenSizeY()));
 
 #if (DISPLAY_FAST_LINE == 1)
 
-    mySerial.println("DISPLAY_FAST_LINE... ");
+    mySerial.println("DISPLAY_FAST_LINE");
     myScreen.clear();
     displayFastLine();
     wait(4);
 
 #endif // DISPLAY_FAST_LINE
 
-    mySerial.println("White... ");
-    myScreen.clear();
-    flush_ms();
+    mySerial.println("Regenerate");
+    myScreen.regenerate();
 
     mySerial.println("=== ");
     mySerial.println();

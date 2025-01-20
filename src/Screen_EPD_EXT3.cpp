@@ -8,10 +8,10 @@
 //
 // Created by Rei Vilo, 28 Jun 2016
 //
-// Copyright (c) Rei Vilo, 2010-2024
+// Copyright (c) Rei Vilo, 2010-2025
 // Licence Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 // For exclusive use with Pervasive Displays screens
-// Portions (c) Pervasive Displays, 2010-2024
+// Portions (c) Pervasive Displays, 2010-2025
 //
 // Release 509: Added support for 271_PS_09
 // Release 527: Added support for ESP32 PSRAM
@@ -50,11 +50,8 @@
 /// @cond
 /// @see
 /// * ApplicationNote_smallSize_fast-update_v02_20220907
-/// * ApplicationNote_Small_Size_wide-Temperature_EPD_v03_20231031_B
-/// * ApplicationNote_Small_Size_wide-Temperature_EPD_v01_20231225_A
 /// * ApplicationNote_EPD343_Mono(E2343PS0Bx)_240320a
 /// * ApplicationNote_for_5.8inch_fast-update_EPDE2581PS0B1_20230206b
-/// * ApplicationNote_152_Size_wide-Temperature_EPD_v01_20231225_A
 //
 
 //
@@ -502,7 +499,7 @@ void Screen_EPD_EXT3_Fast::COG_SmallP_getDataOTP()
     digitalWrite(b_pin.panelCS, LOW); // CS low = Select
     ui8 = hV_HAL_SPI3_read(); // First byte to be checked
     digitalWrite(b_pin.panelCS, HIGH); // CS high = Unselect
-    // mySerial.println(formatString("hV . ui 0x%02x", ui8));
+    // mySerial.println(formatString("hV . ui8 0x%02x", ui8));
 
     // Check bank
     uint8_t bank = ((ui8 == 0xa5) ? 0 : 1);
