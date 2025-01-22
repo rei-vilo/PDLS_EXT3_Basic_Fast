@@ -494,12 +494,10 @@ void Screen_EPD_EXT3_Fast::COG_SmallP_getDataOTP()
     digitalWrite(b_pin.panelCS, LOW); // CS low = Select
     ui8 = hV_HAL_SPI3_read(); // Dummy
     digitalWrite(b_pin.panelCS, HIGH); // CS high = Unselect
-    // mySerial.println(formatString("hV . Dummy read 0x%02x", ui8));
 
     digitalWrite(b_pin.panelCS, LOW); // CS low = Select
     ui8 = hV_HAL_SPI3_read(); // First byte to be checked
     digitalWrite(b_pin.panelCS, HIGH); // CS high = Unselect
-    // mySerial.println(formatString("hV . ui8 0x%02x", ui8));
 
     // Check bank
     uint8_t bank = ((ui8 == 0xa5) ? 0 : 1);
